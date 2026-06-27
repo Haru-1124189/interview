@@ -804,6 +804,45 @@ function speak(text){
     window.speechSynthesis.speak(u);
   }catch(e){}
 }
+function pickVoiceLang(prefix){ if(!VOICES.length) loadVoices(); const m=VOICES.filter(v=>v.lang&&v.lang.toLowerCase().startsWith(prefix)); return m[0]||null; }
+function speakCb(text,lang,rate,cb){
+  if(!TTS_OK||!text){ cb&&cb(); return; }
+  try{
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang=lang; u.rate=rate; u.pitch=1;
+    const v=pickVoiceLang(lang.slice(0,2).toLowerCase()); if(v) u.voice=v;
+    u.onend=()=>cb&&cb(); u.onerror=()=>cb&&cb();
+    window.speechSynthesis.speak(u);
+  }catch(e){ cb&&cb(); }
+}
+// 聞き流し（日本語→英語 自動再生）プレイヤー
+let LISTEN=null;
+function listenStop(){ if(LISTEN){ LISTEN.playing=false; if(LISTEN.timer) clearTimeout(LISTEN.timer); } try{ window.speechSynthesis.cancel(); }catch(e){} LISTEN=null; }
+function listenSources(src){
+  const fromV=()=>VOCAB.map(v=>({jp:v.jp,en:v.en}));
+  const fromS=()=>SENTENCES.map(s=>({jp:s.jp,en:s.en}));
+  if(src==="vocab") return fromV();
+  if(src==="sentence") return fromS();
+  if(src==="interview"){ const o=[]; INTERVIEW.forEach(q=>q.answer.forEach(a=>o.push({jp:a.jp,en:a.en}))); return o; }
+  return [...fromV(),...fromS()];
+}
+function listenPlayCurrent(){
+  const L=LISTEN; if(!L||!L.playing) return;
+  listenRenderPlayer();
+  const it=L.items[L.idx];
+  speakCb(it.jp,"ja-JP",Math.min(1.2,L.rate+0.05),()=>{
+    if(!LISTEN||!LISTEN.playing) return;
+    speakCb(it.en,"en-US",Math.max(0.7,L.rate-0.05),()=>{
+      if(!LISTEN||!LISTEN.playing) return;
+      LISTEN.timer=setTimeout(()=>{
+        if(!LISTEN||!LISTEN.playing) return;
+        if(LISTEN.idx+1>=LISTEN.items.length){ if(!LISTEN.loop){ LISTEN.playing=false; listenRenderPlayer(); return; } LISTEN.idx=0; }
+        else LISTEN.idx++;
+        listenPlayCurrent();
+      },450);
+    });
+  });
+}
 const TTS_OK = "speechSynthesis" in window;
 function spk(text){ return TTS_OK?`<button class="spk" data-speak="${esc(text)}" aria-label="音声を再生">🔊</button>`:""; }
 const READINGS = {
@@ -1088,7 +1127,7 @@ function highlight(sentence, term){
 
 // ============ ROUTER ============
 let view="home", state={};
-function go(v, s={}){ view=v; state=s; render(); window.scrollTo(0,0); }
+function go(v, s={}){ if(LISTEN && v!=="listen"){ listenStop(); } view=v; state=s; render(); window.scrollTo(0,0); }
 
 function render(){
   if(view==="home") return renderHome();
@@ -1101,6 +1140,7 @@ function render(){
   if(view==="phrases") return renderPhrases();
   if(view==="numbers") return renderNumbers();
   if(view==="checklist") return renderChecklist();
+  if(view==="listen") return renderListen();
 }
 
 // ============ HOME ============
@@ -1121,6 +1161,7 @@ function renderHome(){
         ${modeCard("recite","暗唱（日本語→英語）","意味を見て、英語を自分で口に出す。本番に一番近い練習",`${rK} / ${SENTENCES.length} 言えた`,rPct)}
         ${modeCard("phrases","つなぎフレーズ","詰まった時の魔法の言葉。沈黙より繋ぐ",`${PHRASES.length} フレーズ ・ 暗記推奨`,null)}
         ${modeCard("numbers","数字ドリル","卒業・TOEIC・面接日・入社時期を英語で即答",`${NUMBERS.length} 項目`,null)}
+        ${modeCard("listen","聞き流し","日本語→英語を自動再生。手が離せない時に流すだけ","ハンズフリー",null)}
       </div>
       <div style="font-size:12px;color:${C.muted};font-weight:700;letter-spacing:1px;margin:2px 0 8px">当日・仕上げ</div>
       <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:18px">
@@ -1159,7 +1200,7 @@ function wafer(pct){
 }
 function modeCard(go,title,sub,stat,pct,dim){
   return `<button data-go="${go}" class="card" style="opacity:${dim?.55:1}">
-    <div class="icon">${title.includes("面接")?"▶":title.includes("暗唱")?"★":title.includes("つなぎ")?"💬":title.includes("数字")?"#":title.includes("チェック")?"✓":title.includes("練習")?"A":title.includes("テスト")?"T":title.includes("弱点")?"!":"⇅"}</div>
+    <div class="icon">${title.includes("面接")?"▶":title.includes("暗唱")?"★":title.includes("つなぎ")?"💬":title.includes("数字")?"#":title.includes("チェック")?"✓":title.includes("聞き流し")?"🎧":title.includes("練習")?"A":title.includes("テスト")?"T":title.includes("弱点")?"!":"⇅"}</div>
     <div style="flex:1;min-width:0">
       <div style="font-size:17px;font-weight:700">${title}</div>
       <div style="font-size:12px;color:${C.muted};margin-bottom:${pct!=null?7:4}px">${sub}</div>
@@ -1541,6 +1582,52 @@ function renderChecklist(){
   bindBack();
   app.querySelectorAll("[data-ci]").forEach(b=>b.onclick=()=>{ const i=+b.dataset.ci; progress.checklist[i]=!progress.checklist[i]; save(); render(); });
   $("#clrBtn").onclick=()=>{ progress.checklist={}; save(); render(); };
+}
+
+// ============ 聞き流し（リスニング） ============
+function renderListen(){
+  if(!LISTEN){
+    const s=state; const src=s.lsrc||"sentence"; const sh=!!s.lsh;
+    const cnt=listenSources(src).length;
+    const c1=(id,label)=>`<button class="chip ${src===id?'on':''}" data-lsrc="${id}">${label}</button>`;
+    const c2=(val,label)=>`<button class="chip ${sh===val?'on':''}" data-lsh="${val?1:0}">${label}</button>`;
+    app.innerHTML=topBar("聞き流し")+`
+      <div style="background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:12px 14px;margin-bottom:18px;font-size:12.5px;color:${C.muted};line-height:1.8">
+        <span style="color:${C.accent};font-weight:700">日本語→英語</span> の順で自動再生。再生を押したら、あとは手を離してOK。<br><span style="color:${C.error}">※スマホは画面を消す（ロック）と音が止まります。</span>画面はつけたままで流してください。</div>
+      ${sectionLabel("内容")}
+      <div class="chips">${c1("sentence",`英文 (${SENTENCES.length})`)}${c1("vocab",`単語 (${VOCAB.length})`)}${c1("interview","面接の模範解答")}${c1("all","単語+英文")}</div>
+      ${sectionLabel("順番")}
+      <div class="chips">${c2(false,"順番どおり")}${c2(true,"シャッフル")}</div>
+      ${bigBtn("startBtn",`▶ 再生スタート（${cnt}項目）`)}`;
+    bindBack();
+    app.querySelectorAll("[data-lsrc]").forEach(b=>b.onclick=()=>{ s.lsrc=b.dataset.lsrc; go("listen",s); });
+    app.querySelectorAll("[data-lsh]").forEach(b=>b.onclick=()=>{ s.lsh=b.dataset.lsh==="1"; go("listen",s); });
+    $("#startBtn").onclick=()=>{ let items=listenSources(src); if(sh) items=shuffle(items); if(!items.length) return; LISTEN={items,idx:0,playing:true,rate:0.95,timer:null,loop:true,src}; listenPlayCurrent(); };
+    return;
+  }
+  listenRenderPlayer();
+}
+function listenRenderPlayer(){
+  const L=LISTEN; if(!L) return; const it=L.items[L.idx];
+  app.innerHTML=topBar("聞き流し")+
+    statRow(`${L.idx+1} / ${L.items.length}`, L.playing?`<span style="color:${C.success}">▶ 再生中</span>`:`⏸ 一時停止`)+`
+    <div style="background:${C.surface};border:1px solid ${C.border};border-radius:18px;padding:26px 20px;text-align:center;margin-bottom:16px;min-height:150px;display:flex;flex-direction:column;justify-content:center">
+      <div style="font-size:20px;font-weight:700;line-height:1.5;margin-bottom:14px">${esc(it.jp)}</div>
+      <div class="mono" style="font-size:16px;line-height:1.6;color:${C.accent}">${esc(it.en)}</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:16px">
+      <button id="prevB" class="btn2" style="flex:1">‹ 前</button>
+      <button id="playB" class="btn1" style="flex:2">${L.playing?"⏸ 一時停止":"▶ 再生"}</button>
+      <button id="nextB" class="btn2" style="flex:1">次 ›</button>
+    </div>
+    ${sectionLabel("再生速度")}
+    <div class="chips">${[["0.8","ゆっくり"],["0.95","標準"],["1.1","速め"]].map(([r,l])=>`<button class="chip ${String(L.rate)===r?'on':''}" data-rate="${r}">${l}</button>`).join("")}</div>`;
+  bindBack();
+  const stopAudio=()=>{ if(L.timer)clearTimeout(L.timer); try{window.speechSynthesis.cancel();}catch(e){} };
+  $("#playB").onclick=()=>{ if(L.playing){ L.playing=false; stopAudio(); listenRenderPlayer(); } else { L.playing=true; listenPlayCurrent(); } };
+  $("#prevB").onclick=()=>{ stopAudio(); L.idx=(L.idx-1+L.items.length)%L.items.length; L.playing?listenPlayCurrent():listenRenderPlayer(); };
+  $("#nextB").onclick=()=>{ stopAudio(); L.idx=(L.idx+1)%L.items.length; L.playing?listenPlayCurrent():listenRenderPlayer(); };
+  app.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{ L.rate=parseFloat(b.dataset.rate); listenRenderPlayer(); });
 }
 
 // ============ UI helpers ============
