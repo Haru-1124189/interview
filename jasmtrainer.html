@@ -597,6 +597,114 @@ const CHECKLIST = [
   "数字（卒業・TOEIC・6/29面接・8月入社）を英語でスッと言える",
   "ゆっくり・短く・はっきり（録音で確認した）",
 ];
+// ===== 想定質問集（JASM完全対策・日本語）=====
+const Q = (q,h)=>({q,h:h||""});
+const QBANK = [
+  { id:"basic", label:"基本・人物", items:[
+    Q("自己紹介を1分でお願いします。","大学→研究→現職→だからJASM、の流れ。結論から短く。"),
+    Q("あなたを一言で表すと？その理由は？"),
+    Q("長所は何ですか。それが仕事でどう活きますか。","具体的エピソードとセットで。"),
+    Q("短所は何ですか。どう改善していますか。","改善努力（優先順位）まで必ず言う。"),
+    Q("周囲からどんな人だと言われますか。"),
+    Q("学生時代・社会人で一番打ち込んだことは何ですか。","塾講師6年／研究。試行錯誤して続けた力。"),
+    Q("これまでの一番の失敗と、そこから学んだことは。","状況→行動→結果→学び の順で。"),
+    Q("強いプレッシャーをどう乗り越えてきましたか。","JASM頻出。具体例で。"),
+    Q("締め切りに間に合いそうにない時、どうしますか。","早めの報連相＋優先順位＋相談。"),
+    Q("ストレスの解消法は何ですか。","健康に長く働けるアピールに繋げる。"),
+  ]},
+  { id:"motive", label:"志望動機・キャリア", items:[
+    Q("なぜ半導体業界を志望するのですか。"),
+    Q("なぜJASM（TSMC熊本）なのですか。","地元×世界最先端の両立を核に。"),
+    Q("なぜ他社（ソニー・ラピダス等）ではなくJASMなのですか。","①地元×最先端は絶対外さない＋TSMCで最高レベル等。"),
+    Q("入社後、どのように貢献できると考えますか。","原因分析・改善で品質と歩留まりに貢献。"),
+    Q("5年後・10年後のキャリアビジョンを教えてください。","すぐ一人前になれない→数年単位で、が好印象。"),
+    Q("当社で何を実現したいですか。"),
+    Q("当社の事業内容や強みをどう理解していますか。","ファウンドリ世界トップ。最先端ロジック量産。"),
+    Q("なぜ今のタイミングで転職するのですか。","急所。現職を悪く言わず、前向きな理由で。"),
+  ]},
+  { id:"current", label:"現職・レジュメ深掘り", items:[
+    Q("現職（旭製作所）での具体的な業務を教えてください。","Inventorで設計、顧客要望、部品調達。"),
+    Q("Inventorで普段どんな設計をしていますか。難しさは？"),
+    Q("顧客の要望を、どう設計に落とし込んでいますか。"),
+    Q("部品の調達・発注で気をつけていることは何ですか。"),
+    Q("入社数ヶ月で3D設計を任されたのは、なぜ短期間で習得できたのですか。","学習力・行動力のアピール。"),
+    Q("4月に入ったばかりなのに、なぜ辞めるのですか。","最大の懸念。感謝→半導体への思い→前向きに。"),
+    Q("現職で学んだことは何ですか。JASMでどう活かしますか。"),
+    Q("プラントエンジニアと半導体の設備エンジニア、共通点と違いは何だと思いますか。","機械・原因究明は共通。微細さ・量産が違い。"),
+    Q("退職・引き継ぎはスムーズにできますか。入社可能時期は？","会社のルールに従って、とだけ。8月頃。"),
+  ]},
+  { id:"research", label:"研究の深掘り", items:[
+    Q("研究テーマを、専門外の人にもわかるように説明してください。"),
+    Q("なぜ高周波超音波処理に着目したのですか。","低周波の欠陥・不均一を改善する狙い。"),
+    Q("低周波と比べて何が優れていましたか。数値で言えますか。","同等の分散＋欠陥が少ない。"),
+    Q("欠陥が少ないと、何が嬉しいのですか。","熱・力学・電気特性、再現性が向上。"),
+    Q("研究で一番苦労した点と、乗り越え方を教えてください。","AFMを自力で粘り強く＝設備EEに直結。"),
+    Q("使った分析装置（AFM/XPS/UV-VIS/FTIR/DLS）の役割を説明できますか。"),
+    Q("研究の結論と、その再現性・信頼性をどう担保しましたか。"),
+    Q("研究がうまくいかない時、どう原因を切り分けましたか。","仮説検証のプロセスを具体的に。"),
+    Q("その研究は半導体・CMPにどう繋がりますか。","微細な条件管理→品質、で接続。"),
+  ]},
+  { id:"es", label:"ES深掘り", items:[
+    Q("「自ら手を動かして学ぶ」具体的なエピソードをもう一つ教えてください。"),
+    Q("趣味の車・バイクいじりについて、詳しく教えてください。","原因究明→自力修理＝EE適性に着地させる。"),
+    Q("バイク事故からの自力修理を、技術的にどう解決しましたか。"),
+    Q("塾講師6年で工夫したこと・成果を教えてください。","相手に合わせる＝コミュ力。"),
+    Q("「納得するまで考えすぎる」短所で、実際に困った具体例は？","改善策（優先順位）まで。"),
+    Q("「優先順位をつける」を実践した具体例を教えてください。"),
+    Q("卒業に時間がかかったのはなぜですか。","聞かれたら。反省→後悔なし→今に繋がる。"),
+    Q("学生時代に他社（ソニー）を受けて落ちた理由を、どう分析していますか。","落ちた後の成長を語る。"),
+  ]},
+  { id:"tech", label:"半導体・CMP 技術", items:[
+    Q("半導体とは何か、説明してください。","導体と絶縁体の中間の抵抗率。"),
+    Q("ファウンドリとは何ですか。JASM（TSMC）のビジネスモデルは？"),
+    Q("歩留まり（yield）とは何ですか。なぜ重要ですか。"),
+    Q("CMPとは何か、なぜ重要かを説明してください。","平坦化＋品質＋次工程（露光）に効く。"),
+    Q("CMPで品質を左右する要素は何だと思いますか。","スラリー、パッド、圧力、時間など。"),
+    Q("半導体製造で、なぜ微細なゴミ・汚染が問題になるのですか。"),
+    Q("設備が止まると、何が起きますか。","ダウンタイム＝生産・歩留まりに直結。"),
+    Q("知らない専門知識を聞かれたら、どうしますか。","正直に勉強中＋学ぶ意欲。背伸びしない。"),
+  ]},
+  { id:"ee", label:"設備エンジニア適性", items:[
+    Q("設備エンジニアに一番大事な資質は何だと思いますか。","粘り強い原因究明＋諦めない。"),
+    Q("トラブル発生時、どんな手順で原因を特定しますか。","切り分け・仮説検証。"),
+    Q("緊急で装置が止まりました。どう動きますか。"),
+    Q("地道な保守・点検の繰り返しは、苦になりませんか。"),
+    Q("チームで意見が対立した時、どうしますか。","JASMは双方向の対話を重視。"),
+    Q("他部署と連携して問題解決した経験はありますか。","部門間調整を具体的に。"),
+    Q("安全について、どう考えていますか。"),
+  ]},
+  { id:"cond", label:"勤務条件・現実確認", items:[
+    Q("勤務地は熊本でよいですか。転居は可能ですか。"),
+    Q("台湾研修（数ヶ月）に行けますか。","前向き＋家族と相談。頭ごなしに断らない。"),
+    Q("交替勤務・夜勤・残業は問題ないですか。","承知の上、体力に自信。"),
+    Q("入社可能時期はいつですか。","面接日基準で訂正、8月頃。"),
+    Q("他社の選考状況を教えてください。","JASM一本＋現職に迷惑をかけたくない。"),
+    Q("健康面・体力面で不安はありませんか。"),
+  ]},
+  { id:"english", label:"英語・グローバル", items:[
+    Q("英語力はどの程度ですか（TOEIC含む）。","正直＋努力中。誤解を生まない工夫を語る。"),
+    Q("英語が苦手な中で、台湾の同僚とどう協働しますか。","翻訳機・確認・誠実さ。"),
+    Q("英語学習のために、今していることは何ですか。"),
+    Q("異文化（台湾）の人と働くことに抵抗はないですか。"),
+    Q("簡単な自己紹介を英語でお願いできますか。","最初の2〜3文は英語で言えるように。"),
+  ]},
+  { id:"hard", label:"難問・想定外・圧迫", items:[
+    Q("あなたを採用するメリットは何ですか。なぜあなたなのですか。"),
+    Q("第二新卒で経験が浅いですが、貢献できますか。","学習力＋原因究明力で勝負。"),
+    Q("半導体未経験で、不安はありませんか。"),
+    Q("もし不採用なら、その後どうしますか。"),
+    Q("当社の弱み・課題は何だと思いますか。"),
+    Q("答えに詰まった時、どう対応しますか。","つなぎフレーズで間を作る。沈黙より繋ぐ。"),
+  ]},
+  { id:"reverse", label:"逆質問（自分から聞く）", items:[
+    Q("入社までに勉強しておくべきこと・推奨教材はありますか。","志望度・学ぶ姿勢が伝わる好例。"),
+    Q("CMP設備エンジニアが入社後、最初に任される業務は何ですか。"),
+    Q("活躍している方に共通する特徴はありますか。"),
+    Q("第二新卒入社者へのフォローや研修体制を教えてください。"),
+    Q("チームの雰囲気や、日本人と台湾人の協働の様子を教えてください。"),
+    Q("（NG例）残業・休日・給与だけを真っ先に聞く。","条件は最後に軽く。志望度が伝わる質問を優先。"),
+  ]},
+];
 /* 旧 INTERVIEW（差し替え前の雛形）— 無効化
 const _UNUSED_OLD = [
   { id:"自己紹介", en:"First, could you introduce yourself?", jp:"まず、自己紹介をお願いします。",
@@ -1141,6 +1249,7 @@ function render(){
   if(view==="numbers") return renderNumbers();
   if(view==="checklist") return renderChecklist();
   if(view==="listen") return renderListen();
+  if(view==="questions") return renderQuestions();
 }
 
 // ============ HOME ============
@@ -1155,6 +1264,10 @@ function renderHome(){
       <h1 style="font-size:25px;font-weight:800;letter-spacing:-.5px;margin:0 0 2px">面接 英語トレーナー</h1>
       <div style="color:${C.muted};font-size:13px;margin-bottom:20px">単語 ${VOCAB.length} ・ 英文 ${SENTENCES.length}</div>
       <div style="display:flex;justify-content:center;margin:4px 0 24px">${wafer(overall)}</div>
+      <div style="font-size:12px;color:${C.accent};font-weight:700;letter-spacing:1px;margin:2px 0 8px">対策（読んで答えを準備）</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:18px">
+        ${modeCard("questions","想定質問集","JASM特化・レジュメ/ESの深掘りも。一度答えを考えておく",`${QBANK.reduce((n,c)=>n+c.items.length,0)} 問 ・ ${QBANK.length} カテゴリ`,null)}
+      </div>
       <div style="font-size:12px;color:${C.accent};font-weight:700;letter-spacing:1px;margin:2px 0 8px">話す（本番練習）</div>
       <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:18px">
         ${modeCard("interview","面接シミュレーション","面接官の質問→口に出して答える→模範解答と音声で確認",`質問 ${INTERVIEW.length} 問 ・ 優先度つき`,null)}
@@ -1200,7 +1313,7 @@ function wafer(pct){
 }
 function modeCard(go,title,sub,stat,pct,dim){
   return `<button data-go="${go}" class="card" style="opacity:${dim?.55:1}">
-    <div class="icon">${title.includes("面接")?"▶":title.includes("暗唱")?"★":title.includes("つなぎ")?"💬":title.includes("数字")?"#":title.includes("チェック")?"✓":title.includes("聞き流し")?"🎧":title.includes("練習")?"A":title.includes("テスト")?"T":title.includes("弱点")?"!":"⇅"}</div>
+    <div class="icon">${title.includes("想定質問")?"📋":title.includes("面接")?"▶":title.includes("暗唱")?"★":title.includes("つなぎ")?"💬":title.includes("数字")?"#":title.includes("チェック")?"✓":title.includes("聞き流し")?"🎧":title.includes("練習")?"A":title.includes("テスト")?"T":title.includes("弱点")?"!":"⇅"}</div>
     <div style="flex:1;min-width:0">
       <div style="font-size:17px;font-weight:700">${title}</div>
       <div style="font-size:12px;color:${C.muted};margin-bottom:${pct!=null?7:4}px">${sub}</div>
@@ -1628,6 +1741,29 @@ function listenRenderPlayer(){
   $("#prevB").onclick=()=>{ stopAudio(); L.idx=(L.idx-1+L.items.length)%L.items.length; L.playing?listenPlayCurrent():listenRenderPlayer(); };
   $("#nextB").onclick=()=>{ stopAudio(); L.idx=(L.idx+1)%L.items.length; L.playing?listenPlayCurrent():listenRenderPlayer(); };
   app.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{ L.rate=parseFloat(b.dataset.rate); listenRenderPlayer(); });
+}
+
+// ============ 想定質問集 ============
+function renderQuestions(){
+  const s=state; const cat=s.qcat||QBANK[0].id;
+  const c=QBANK.find(x=>x.id===cat)||QBANK[0];
+  const total=QBANK.reduce((n,x)=>n+x.items.length,0);
+  app.innerHTML=topBar("想定質問集")+`
+    <div style="background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:12px 14px;margin-bottom:16px;font-size:12.5px;color:${C.muted};line-height:1.8">
+      JASM特化の想定質問 <span style="color:${C.text};font-weight:700">${total}問</span>。<span style="color:${C.accent}">一度、自分の答えを声に出して考えておく</span>だけで本番が変わります。<br>💡 = 狙い・答えの方向。レジュメ／ESの深掘りも収録。</div>
+    <div class="chips">${QBANK.map(x=>`<button class="chip ${x.id===cat?'on':''}" data-qc="${x.id}">${esc(x.label)} (${x.items.length})</button>`).join("")}</div>
+    <div style="font-size:13px;color:${C.accent};font-weight:700;margin:16px 0 10px">${esc(c.label)}（${c.items.length}問）</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${c.items.map((it,i)=>`<div style="background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:14px 16px">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <div class="mono" style="color:${C.accent};font-weight:800;flex-shrink:0;font-size:13px;padding-top:1px">Q${i+1}</div>
+          <div style="font-size:15px;font-weight:600;line-height:1.55">${esc(it.q)}</div></div>
+        ${it.h?`<div style="font-size:12.5px;color:${C.muted};line-height:1.6;margin-top:9px;border-top:1px solid ${C.border};padding-top:9px">💡 ${esc(it.h)}</div>`:""}
+      </div>`).join("")}
+    </div>
+    <div style="text-align:center;color:${C.muted};font-size:12px;margin-top:18px">関連する英語回答は「面接シミュレーション」で確認できます</div>`;
+  bindBack();
+  app.querySelectorAll("[data-qc]").forEach(b=>b.onclick=()=>{ s.qcat=b.dataset.qc; go("questions",s); window.scrollTo(0,0); });
 }
 
 // ============ UI helpers ============
