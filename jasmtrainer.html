@@ -27,6 +27,10 @@ html,body{margin:0;background:#0c1018;color:#e8eaed;font-family:-apple-system,Bl
 .bankc{background:#161c28;border:1px solid #2a3340;color:#e8eaed;border-radius:10px;padding:11px 13px;font-size:14px;font-weight:600;cursor:pointer}
 .btn1{background:#d98e5a;border:none;border-radius:13px;padding:15px;color:#0c1018;font-size:15px;font-weight:800;cursor:pointer;flex:1}
 .btn2{background:#161c28;border:1.5px solid #2a3340;border-radius:13px;padding:15px;color:#e8eaed;font-size:15px;font-weight:700;cursor:pointer;flex:1}
+.spk{background:#1e2533;border:1px solid #2a3340;border-radius:9px;color:#d98e5a;font-size:14px;padding:5px 11px;cursor:pointer;line-height:1;flex-shrink:0}
+.spk:active{background:#d98e5a;color:#0c1018}
+.btnp{background:#161c28;border:1.5px solid #d98e5a;border-radius:13px;padding:14px;color:#d98e5a;font-size:15px;font-weight:800;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
+.qrow{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #2a3340}
 </style>
 </head>
 <body>
@@ -323,6 +327,483 @@ const SENTENCES = [
   { q: "締め", jp: "内定を頂けたら、できる限りスムーズに入社することをお約束します。", chunks: ["If I receive an offer,", "I promise to join", "as smoothly as possible."] },
   { q: "締め", jp: "本日はありがとうございました。ご検討のほどよろしくお願いします。", chunks: ["Thank you very much for your time today.", "I would be grateful", "for your kind consideration."] },
 ].map((s) => ({ ...s, en: s.chunks.join(" ") }))
+// 面接シミュレーション：なめこさん本人の想定問答集【完全版】に準拠（CMP設備EE / 第二新卒 / 面接6/29）
+// pri=優先順位（絶対暗記/本命/カード/通常）, tip=コーチング, kw=キー単語
+const A = (en,jp)=>({en,jp});
+const INTERVIEW = [
+  { id:"自己紹介", pri:"絶対暗記", en:"Please introduce yourself.", jp:"自己紹介をお願いします。",
+    short:A("My name is ○○. I graduated from Kumamoto University this March, with a major in materials science. Now I work as a plant engineer at Asahi Glassplant. My hobby is repairing cars and motorcycles.","○○です。今年3月に熊本大学卒、専攻は材料科学。今は旭製作所でプラントエンジニア。趣味は車・バイクの整備です。"),
+    tip:"冒頭に『My name is ○○.』を必ず。絶対暗記。ゆっくり笑顔で30秒。",
+    kw:"major(専攻) / plant(プラント) / request(要望) / patience(忍耐)",
+    answer:[
+      A("I graduated from Kumamoto University this March.","今年3月に熊本大学を卒業しました。"),
+      A("I was in the Faculty of Engineering, and my major was materials science.","工学部に所属し、専攻は材料科学でした。"),
+      A("Now I work at Asahi Glassplant in Arao City, as a plant engineer.","今は荒尾市の旭製作所でプラントエンジニアとして働いています。"),
+      A("I mainly use a 3D CAD called Inventor.","主にInventorという3D CADを使います。"),
+      A("I design plants and glass products based on customer requests.","顧客の要望に応じてプラントやガラス製品を設計します。"),
+      A("My hobby is riding and customizing cars and motorcycles.","趣味は車やバイクに乗ること、改造することです。"),
+      A("Through it, I learned the difficulty and the fun of machines, and also patience.","それを通じて、機械の難しさと面白さ、そして忍耐を学びました。"),
+    ]},
+  { id:"志望動機", pri:"絶対暗記", en:"Why JASM? / Why semiconductors?", jp:"志望動機を教えてください。",
+    tip:"絶対暗記。核は『地元×最先端の両立』。",
+    kw:"since my university days(学生時代から) / it did not work out(縁がなかった) / contribute(貢献)",
+    answer:[
+      A("I studied materials science, so I have wanted to work in the semiconductor industry since my university days.","材料科学を学び、学生時代から半導体業界で働きたいと思っていました。"),
+      A("When I was a student, I actually applied to a semiconductor company, but it did not work out.","学生の頃、実際に半導体企業に応募しましたが、縁がありませんでした。"),
+      A("I had a strong wish to work near my hometown, so I joined Asahi Glassplant.","地元の近くで働きたい気持ちが強く、旭製作所に入りました。"),
+      A("But while working, my feeling became stronger — I really want to work with the most advanced technology in the world.","ですが働くうちに、世界最先端の技術に携わりたい気持ちが強くなりました。"),
+      A("JASM lets me do both: work in my home area, Kumamoto, and work with the world's top technology.","JASMなら地元・熊本で世界最高の技術、その両方が叶います。"),
+      A("I don't just want to see this technology. I want to contribute to it and grow as an engineer here.","ただ技術を見たいのではなく、貢献し、ここでエンジニアとして成長したいです。"),
+    ]},
+  { id:"なぜ他社でなくJASM", pri:"本命", en:"Why JASM, not Sony or Rapidus?", jp:"なぜ他社ではなくJASMなのですか？",
+    short:A("JASM lets me work with the world's most advanced technology, in my home area, Kumamoto. Only JASM gives me both. And as a foundry using TSMC's technology, I can learn at the highest level.","地元・熊本で世界最先端の技術に携われ、両立できるのはJASMだけ。TSMCの技術を使うファウンドリで、最高レベルで学べます。"),
+    tip:"⚠『最先端だから』だけだと他社でも成立する。①地元×最先端は絶対外さない。②〜④を1〜2個足す。",
+    kw:"top share(最大シェア) / at the highest level(最高レベルで) / many kinds of products(多様な製品)",
+    answer:[
+      A("I have a few reasons.","理由はいくつかあります。"),
+      A("First, JASM lets me work with the world's most advanced technology, in my home area, Kumamoto. Only JASM gives me both.","第一に、地元・熊本で世界最先端の技術に携われます。両立できるのはJASMだけです。"),
+      A("Second, JASM uses TSMC's technology. TSMC has the top share and the top technology in the world as a foundry, so I can learn at the highest level.","第二に、TSMCの技術を使います。TSMCはファウンドリ世界トップのシェアと技術で、最高レベルで学べます。"),
+      A("Third, it is a global workplace. I want to work with people from Taiwan, and I want to become able to speak English.","第三に、グローバルな現場です。台湾の方と働き、英語も話せるようになりたいです。"),
+      A("Fourth, as a foundry, JASM makes many kinds of products, so I can gain wide experience, not just one product.","第四に、ファウンドリで多様な製品を作るので、一つでなく幅広い経験が積めます。"),
+    ]},
+  { id:"なぜ今転職", pri:"絶対暗記", en:"Why leave Asahi so soon?", jp:"なぜ今、転職するのですか？（急所）",
+    short:A("I joined Asahi only a few months ago, and I am thankful to the people there. But my wish to work in semiconductors became even stronger, so when I found JASM's position, I applied right away.","旭製作所に入って数ヶ月で感謝しています。ですが半導体で働きたい思いが強くなり、JASMの募集を見つけてすぐ応募しました。"),
+    tip:"⚠急所。現職を絶対に悪く言わない。感謝→思いが強まった→すぐ応募の順。",
+    kw:"with full agreement(納得して) / thankful(感謝) / became even stronger(さらに強まった)",
+    answer:[
+      A("It is true that I joined Asahi only a few months ago.","確かに旭製作所に入って数ヶ月です。"),
+      A("I joined with full agreement, and the people around me are very kind to me even now. I am thankful for that.","納得して入社し、今も周りの方はとても親切です。感謝しています。"),
+      A("But as I said, I have been interested in semiconductors since my university days. After I started working, this feeling became even stronger.","ですが学生時代から半導体に関心があり、働き始めてその思いはさらに強まりました。"),
+      A("I want to grow in a world-class workplace, get good stimulation, contribute there, and be useful to people.","世界レベルの現場で成長し、良い刺激を受け、貢献し、人の役に立ちたいです。"),
+      A("So I began to think about second-new-graduate hiring.","そこで第二新卒採用を考えるようになりました。"),
+      A("I had been interested in JASM, and when I found the position was open, I applied right away.","以前からJASMに関心があり、募集を見つけてすぐ応募しました。"),
+    ]},
+  { id:"研究概要", pri:"絶対暗記", en:"Tell me about your research.", jp:"研究内容を教えてください。",
+    short:A("My research was about dispersing graphene oxide. I used high-frequency ultrasonic treatment, and I found it gives the same dispersion as low-frequency, but with fewer defects.","酸化グラフェンの分散の研究です。高周波超音波を使い、低周波と同等の分散を、より少ない欠陥で実現できると分かりました。"),
+    tip:"絶対暗記。専門用語は詰まったら日本語に頼ってOK。",
+    kw:"synthesis(合成) / a method called〜(という手法) / output power(出力) / defect(欠陥)",
+    answer:[
+      A("My research was about graphene oxide.","私の研究は酸化グラフェンについてです。"),
+      A("Graphene oxide is prepared from graphite oxide, using a synthesis method called Hummers' method.","酸化グラフェンは、Hummers法という合成手法で酸化グラファイトから調製します。"),
+      A("In this process, ultrasonic treatment is used, and usually it is low-frequency.","この工程では超音波処理を使い、通常は低周波です。"),
+      A("I focused on dispersion using high-frequency ultrasonic treatment, and I set this as my research theme.","私は高周波超音波での分散に着目し、研究テーマにしました。"),
+      A("I changed the treatment time and the output power, and I checked the results with various analysis machines.","処理時間と出力を変え、様々な分析装置で結果を確認しました。"),
+      A("My conclusion was this: high-frequency treatment reached the same dispersion as low-frequency, but with fewer defects.","結論は、高周波は低周波と同等の分散を、より少ない欠陥で実現する、ということです。"),
+    ]},
+  { id:"なぜ高周波", pri:"通常", en:"Why focus on high-frequency?", jp:"なぜ高周波に着目したのですか？",
+    kw:"uneven(不均一)⇔uniform(均一) / aim(狙い) / keep〜uniform(均一に保つ)",
+    answer:[
+      A("For graphene oxide dispersion, low-frequency treatment is common.","酸化グラフェンの分散では低周波処理が一般的です。"),
+      A("Low-frequency gives good dispersion and good cost performance.","低周波は良い分散とコスパの良さがあります。"),
+      A("However, it has some problems: many defects, and uneven size.","しかし欠陥が多く、サイズが不均一という問題があります。"),
+      A("I think this makes it difficult to keep the product quality uniform.","これは品質を均一に保つのを難しくすると考えます。"),
+      A("So my aim was fewer defects and more uniform size.","そこで私の狙いは、欠陥を減らしサイズを均一にすることでした。"),
+      A("For this reason, I tried dispersion with high-frequency ultrasonic treatment.","この理由で、高周波超音波での分散を試しました。"),
+    ]},
+  { id:"欠陥が少ない利点", pri:"通常", en:"Fewer defects — why is that good?", jp:"欠陥が少ないと何が良いのですか？",
+    tip:"還元=reduction。聞き返されたら『reduction means removing oxygen from graphene oxide.』",
+    kw:"thermal conductivity(熱伝導性) / mechanical properties(力学特性) / reproducibility(再現性)",
+    answer:[
+      A("When graphene oxide has fewer defects, its thermal conductivity and mechanical properties tend to be better.","欠陥が少ないと、熱伝導性や力学特性が良くなる傾向があります。"),
+      A("Also, when it is reduced later, the electrical conductivity improves.","また、後で還元すると電気伝導性が向上します。"),
+      A("And the chemical reproducibility becomes higher.","化学的な再現性も高くなります。"),
+      A("So the material quality becomes more stable, and it is easier to use as a product.","結果、材料品質が安定し、製品として使いやすくなります。"),
+    ]},
+  { id:"研究で苦労した点", pri:"本命", en:"What was the most difficult part?", jp:"研究で一番苦労した点は？（困難経験も兼ねる）",
+    short:A("I had a hard time with the AFM measurement, because the image quality changed a lot with the conditions. High-frequency had few past examples, so I searched for the right settings by myself, and kept trying patiently until I got clear images.","AFM測定に苦労しました。条件で画像品質が大きく変わり、高周波は前例も少なく、自力で設定を探り、綺麗な画像が取れるまで粘り強く続けました。"),
+    tip:"『自力で粘り強く条件を探した』が設備EEに直結。長いので時間がなければ要点だけでも。",
+    kw:"have a hard time with〜(苦労する) / at most(多くても) / by myself(自力で) / keep trying patiently(粘り強く)",
+    answer:[
+      A("This was not the main part of my research, but I had a hard time with AFM, one of the analysis methods.","研究の主目的ではないですが、分析手法の一つAFMに苦労しました。"),
+      A("I used AFM to check the number of layers and the surface of graphene oxide, in a range of a few micrometers.","数マイクロメートルの範囲で、層数と表面をAFMで確認しました。"),
+      A("AFM can observe about three layers at most. But graphite oxide that is not well dispersed can have several hundred layers.","AFMで観察できるのは多くて約3層。分散の悪い酸化グラファイトは数百層になります。"),
+      A("Also, the size of graphene oxide is not uniform.","また酸化グラフェンのサイズは不均一です。"),
+      A("So if I set the wrong conditions or range, the machine stopped, or the image became rough, or I could see nothing.","条件や範囲を誤ると、装置が止まる・画像が荒れる・何も見えない、となりました。"),
+      A("High-frequency treatment had few past examples, so there was no clear setting to follow.","高周波処理は前例が少なく、従うべき設定がありませんでした。"),
+      A("I searched for the right AFM settings by myself, and I kept trying patiently until I got clear images.","自力で最適なAFM設定を探り、綺麗な画像が取れるまで粘り強く続けました。"),
+    ]},
+  { id:"長所・短所", pri:"通常", en:"What are your strengths and weaknesses?", jp:"長所と短所を教えてください。",
+    short:A("My strength is that I learn by doing — for example, I repaired my motorcycle by myself. My weakness is that I sometimes think too long, so now I always set priorities.","長所はやりながら学ぶこと（バイクを自分で修理）。短所は考えすぎることがあるので、今は優先順位を意識しています。"),
+    tip:"長所→具体例→短所→改善の順。ESと統一。",
+    kw:"learn by doing(やりながら学ぶ) / be trusted with(任される) / set priorities(優先順位)",
+    answer:[
+      A("My strength is that I act by myself and learn by doing.","私の長所は、自分で手を動かし、やりながら学ぶことです。"),
+      A("For example, through my car and motorcycle hobby, I changed suspensions and repainted whole bodies by myself, and I learned how machines are built.","例えば趣味の車・バイクで、サス交換や全塗装を自分で行い、機械の仕組みを学びました。"),
+      A("When I don't understand something, I try it first, think about the cause, and improve.","分からないことは、まず試し、原因を考え、改善します。"),
+      A("Because of this, I was trusted with 3D modeling and drawings early at my current job.","そのため現職でも早くから3Dモデリングや図面を任されました。"),
+      A("I also learned to deal with people patiently, through my six years of tutoring at a cram school.","塾講師6年でも、粘り強く人に対応する力を学びました。"),
+      A("My weakness is that I sometimes think too much until I am fully convinced, so I spend too much time.","短所は、納得するまで考えすぎ、時間をかけすぎることです。"),
+      A("So now I always set priorities, and I work with that in mind.","なので今は優先順位を決めて取り組んでいます。"),
+    ]},
+  { id:"英語力", pri:"本命", en:"How is your English? / Communication with Taiwanese", jp:"英語力・コミュニケーションは？（必出）",
+    short:A("To be honest, I cannot use English freely yet. But I am making an effort, and I will use translation tools and ask people, so there is no misunderstanding in the team.","正直、まだ自由に英語は使えません。ですが努力中で、翻訳機や周りも頼り、チームで誤解が出ないようにします。"),
+    tip:"★必出。正直＋やる気。できれば最初の2〜3文だけでも英語で言い切る。",
+    kw:"to be honest(正直に言うと) / misunderstanding(誤解) / realistic(現実的) / make an effort(努力する)",
+    answer:[
+      A("To be honest, right now I do not have enough English to use freely in daily life or at work.","正直、今は日常でも仕事でも自由に使えるほどの英語力はありません。"),
+      A("So if I receive an offer, I think the beginning will not be easy.","なので内定をいただいても、最初は簡単ではないと思います。"),
+      A("I believe the most important thing at work is that there is no misunderstanding in the team.","仕事で一番大事なのは、チーム内で誤解がないことだと考えます。"),
+      A("So while my English is still weak, the realistic way is to be honest, use translation tools, and ask people who can speak English.","英語が弱いうちは、正直に伝え、翻訳機や英語ができる人を頼るのが現実的です。"),
+      A("At the same time, JASM offers language support and other chances to grow. I will use them and make an effort to become able to use English at work.","同時にJASMの語学サポートも活用し、仕事で使えるよう努力します。"),
+    ]},
+  { id:"半導体の知識", pri:"通常", en:"How much do you know about semiconductors?", jp:"半導体についてどのくらい知っていますか？",
+    tip:"第二新卒は専門家レベルより『興味・学ぶ意欲』を見られる。完璧主義にならない。",
+    kw:"resistivity(抵抗率) / conductor・insulator(導体・絶縁体) / foundry(ファウンドリ) / yield(歩留まり)",
+    answer:[
+      A("A semiconductor is a material with resistivity between a conductor, like metal, and an insulator, like rubber.","半導体は、金属のような導体とゴムのような絶縁体の中間の抵抗率を持つ物質です。"),
+      A("Semiconductors are used everywhere — in cars and home appliances — and they are so important that we cannot live without them.","半導体は車や家電などあらゆる所で使われ、無くては生きていけません。"),
+      A("I also understand that JASM is a foundry. It manufactures chips designed by other companies, using TSMC's technology.","JASMはファウンドリで、TSMCの技術で他社設計のチップを製造すると理解しています。"),
+      A("In manufacturing, defects and yield are very important.","製造では欠陥と歩留まりがとても重要です。"),
+      A("My major was materials science, so I understand thin films, surfaces, and analysis machines like XPS and AFM.","専攻が材料科学なので、薄膜・表面やXPS・AFMなどの分析装置は分かります。"),
+      A("I am still learning, but I want to study semiconductor processes deeply after I join.","まだ勉強中ですが、入社後に半導体プロセスを深く学びたいです。"),
+    ]},
+  { id:"EEで大事なこと(バイク)", pri:"本命", en:"What is most important as an EE? / What you want to do", jp:"設備エンジニアで大事なこと・やりたいこと（本命）",
+    short:A("I think the most important thing is to never give up and find the cause. Three years ago, my motorcycle broke, and even with little knowledge, I found the cause and fixed it by myself. A difficult problem always has a cause, and I can find it.","一番大事なのは諦めず原因を見つけること。3年前バイクが壊れ、知識が乏しくても自力で原因を見つけ直しました。困難にも必ず原因があり、見つけられます。"),
+    tip:"★本命。核4つ：①粘り強く原因追求 ②バイク事故の自力修理 ③困難も追求できると確信 ④品質・歩留まり改善で役立つ。時間が短ければ②を簡潔に。",
+    kw:"never give up(諦めない) / possible causes(考えられる原因) / I am sure that〜(確信) / yield(歩留まり)",
+    answer:[
+      A("As an equipment engineer, I think the most important thing is to face difficult problems patiently, and never give up.","設備エンジニアで一番大事なのは、困難に粘り強く向き合い、諦めないことです。"),
+      A("Earlier, I said my hobby is customizing cars and motorcycles.","先ほど趣味は車・バイクいじりと言いました。"),
+      A("Actually, three years ago, I had an accident while riding my motorcycle. The body broke, and the engine would not start.","実は3年前バイク事故に遭い、外装が壊れエンジンもかからなくなりました。"),
+      A("But I really wanted to ride my favorite motorcycle again, so I tried to repair it myself.","でも大好きなバイクにまた乗りたくて、自分で直そうとしました。"),
+      A("I did not go to a mechanic school, and I had little knowledge. Still, I thought about many possible causes.","整備学校にも行かず知識も乏しかったですが、多くの原因を考えました。"),
+      A("In the end, I fixed the body, the engine started again, and I could ride it again.","最終的に外装を直し、エンジンも復活し、また走れました。"),
+      A("From this experience, I am sure that even a difficult problem always has a cause, and I can find it.","この経験から、困難な問題にも必ず原因があり、見つけられると確信しています。"),
+      A("Through these experiences, I want to improve product quality and yield at the world's most advanced workplace, and become an engineer who is useful to many people.","これらを通じ、世界最先端の現場で品質と歩留まりを高め、多くの人の役に立つエンジニアになりたいです。"),
+    ]},
+  { id:"CMPとは", pri:"本命", en:"What is CMP? Why is it important?", jp:"CMPとは？なぜ重要？（深掘りされる）",
+    short:A("CMP is the process that makes the wafer surface flat. It is very delicate and has a big effect on product quality, so yield improvement is very important in CMP.","CMPはウェハ表面を平坦にする工程です。とても繊細で品質に大きく影響するので、CMPでは歩留まり改善がとても重要です。"),
+    tip:"★深掘りされる。まず短く『ウェハ表面を平坦にする工程。繊細で品質に大きく影響し、歩留まり改善が重要』。深掘りされたらこの全文（強化版）。",
+    kw:"planarization(平坦化) / flat(平らな) / slurry(スラリー) / polishing pad(研磨パッド) / stack layers(層を積む)",
+    answer:[
+      A("CMP means Chemical Mechanical Planarization.","CMPは化学機械研磨という意味です。"),
+      A("It uses both chemical action, with a liquid called slurry, and mechanical action, with a polishing pad.","スラリーという薬液による化学的作用と、研磨パッドによる機械的作用の両方を使います。"),
+      A("Semiconductors are made by stacking many layers, so each surface must be flat.","半導体は多層を積み重ねて作るので、各層の表面が平らである必要があります。"),
+      A("If the surface is not flat, the next process, especially lithography, cannot work well, and defects appear.","平坦でないと、次の工程、特に露光がうまくいかず、欠陥が出ます。"),
+      A("So this process is very delicate and has a big effect on quality.","だからこの工程はとても繊細で、品質に大きく影響します。"),
+      A("In my research, I also learned how small condition changes affect quality, so I feel this work fits me.","研究でも微細な条件変化が品質に影響すると学んだので、この仕事は自分に合うと感じます。"),
+    ]},
+  { id:"他社の選考状況", pri:"通常", en:"Are you applying to other companies?", jp:"他社の選考状況は？",
+    kw:"first choice(第一志望) / affect my work(仕事に支障) / cause trouble(迷惑をかける)",
+    answer:[
+      A("No, right now I am not applying to any other companies.","いいえ、今は他社は受けていません。"),
+      A("JASM is my first choice, because I really want to work in semiconductors at the most advanced workplace.","JASMが第一志望です。最先端の現場で半導体に携わりたいからです。"),
+      A("Also, I am still working at Asahi Glassplant. If I get too busy, it could affect my work, and I do not want my job-hunting to cause trouble for my current company.","また現職もあり、忙しくなりすぎて仕事に支障が出たり、転職活動で迷惑をかけたくありません。"),
+      A("For these two reasons, right now I am applying only to JASM.","この2つの理由で、今はJASM一本です。"),
+    ]},
+  { id:"地元志向と台湾出張", pri:"通常", en:"You want to stay local. What about training in Taiwan?", jp:"地元志向ですが、台湾研修・出張は？",
+    tip:"⚠最後の『I will not just refuse it.』は必ず入れる。研修は前向きに受けると明言。",
+    kw:"first hope(第一希望) / take part in(参加する) / positively(積極的に) / with full agreement(納得して)",
+    answer:[
+      A("When I was job-hunting, my main point was whether I can keep living in my home area.","就活で重視したのは、地元に住み続けられるかでした。"),
+      A("So my first hope is to keep working at JASM, here in Kumamoto.","なので第一希望は熊本のJASMで働き続けることです。"),
+      A("I know that new graduates have six months of training in Taiwan. As a second-new-graduate, I understand there may be similar training for me.","新卒は台湾で半年研修があると知っています。第二新卒の自分にも同様の研修があると理解しています。"),
+      A("I think this is an important chance to learn the basics and to grow, so I want to take part in it positively.","基礎を学び成長する大事な機会なので、積極的に参加したいです。"),
+      A("For a long stay of several years, I have my family to think about, so I would like to discuss it carefully with them.","数年の長期滞在は家族のこともあり、慎重に相談したいです。"),
+      A("I want to work with full agreement, after talking it over well. I will not just refuse it.","よく話し合い納得して働きたいです。頭ごなしに断ることはしません。"),
+    ]},
+  { id:"交替勤務・夜勤", pri:"通常", en:"Are you OK with shift work and night shifts?", jp:"交替勤務・夜勤は大丈夫ですか？",
+    kw:"in principle(原則として) / overtime(残業) / accept(受け入れる) / confident in my stamina(体力に自信)",
+    answer:[
+      A("Yes, I am OK with shift work and night shifts.","はい、交替勤務・夜勤は大丈夫です。"),
+      A("For the equipment engineer position in CMP, I have already asked the senior person who recommended me.","CMPの設備エンジニア職について、紹介してくれた先輩に既に確認しました。"),
+      A("I understand that, in principle, there is no shift work or night shift.","原則として交替勤務や夜勤はないと理解しています。"),
+      A("But there is some overtime to push the work forward, and I understand and accept that.","ただ仕事を進めるための残業はあり、それは理解し受け入れています。"),
+      A("I am applying with full knowledge of these points.","これらを承知の上で応募しています。"),
+      A("Through my hobby, I have often worked until late at night, so I am confident in my stamina. I almost never get sick, so I have no worries about my health.","趣味で夜遅くまで作業してきたので体力に自信があり、ほとんど病気もしないので健康面の不安もありません。"),
+    ]},
+  { id:"入社時期・引き継ぎ", pri:"通常", en:"When can you start? Can you leave cleanly?", jp:"入社時期・引き継ぎは？",
+    tip:"退職予告は『会社のルールに従って』とだけ。日数や法律論は出さない。面接日(6/29)に合わせ日付を訂正。",
+    kw:"correct(訂正する) / give notice(退職を申し出る) / hand over properly(きちんと引き継ぐ)",
+    answer:[
+      A("On my entry sheet, I wrote July, but today's interview is June 29th, so please let me correct that.","エントリーシートには7月と書きましたが、本日6月29日の面接なので、訂正させてください。"),
+      A("I need to give notice before leaving, following my company's rules, so realistically I think I can start around August.","会社のルールに従い退職を申し出る必要があるので、現実的には8月頃から働けます。"),
+      A("About my current job, I do have my own projects, but I joined only a few months ago, so they are not large. The handover will not take much time.","現職にも自分の案件はありますが、入社数ヶ月で大きくはなく、引き継ぎに時間はかかりません。"),
+      A("I want to finish the handover properly, then leave, and join JASM.","きちんと引き継ぎを終え、退職してからJASMに入社したいです。"),
+    ]},
+  { id:"5年後・10年後", pri:"通常", en:"Where do you see yourself in 5 / 10 years?", jp:"5年後・10年後のビジョンは？",
+    tip:"『半導体ではすぐ一人前になれない、だから数年単位で考える』が定着印象で好評価。",
+    kw:"full member(一人前の) / on my own(主体的に) / right away(すぐに) / trusted(信頼される)",
+    answer:[
+      A("In five years, I want to become a full member of the team as a CMP equipment engineer, who can improve equipment and handle troubles on my own.","5年後は、装置を改善しトラブルに自分で対応できる、一人前のCMP設備エンジニアになりたいです。"),
+      A("In the semiconductor field, I understand that I cannot do the job well right away. So first, I want to think in terms of a few years, and aim to work as a full member of the team.","半導体ではすぐに一人前にはなれないと理解しています。まず数年単位で考え、一人前を目指します。"),
+      A("In ten years, I want to have not only technical knowledge, but also experience in teaching junior members and running a team.","10年後は技術だけでなく、後輩指導やチーム運営の経験も持ちたいです。"),
+      A("I want to become an engineer who is trusted by the people around me.","周りから信頼されるエンジニアになりたいです。"),
+    ]},
+  { id:"締めの挨拶", pri:"絶対暗記", en:"Finally, is there anything you would like to say?", jp:"最後に一言どうぞ。（英語で言い切る）",
+    short:A("Working as a member of society made my goals much clearer. If I receive an offer, I promise to join as smoothly as possible. Thank you very much for your time today. I would be grateful for your kind consideration.","社会人を経験して目標が明確になりました。内定をいただけたら、できる限りスムーズに入社します。本日はありがとうございました。ご検討よろしくお願いいたします。"),
+    tip:"絶対暗記。最後の2文（Thank you… / I would be grateful…）は丸暗記し、必ず英語で気持ちを込めて。",
+    kw:"a member of society(社会人) / much clearer(より明確) / promise(約束する) / consideration(検討)",
+    answer:[
+      A("As I have talked about today, I have grown by learning from many experiences.","本日お話ししたように、私は多くの経験から学び成長してきました。"),
+      A("Even though it was only for a short time, working as a member of society made my goals and what I want to do much clearer.","短い間でも社会人を経験し、目標とやりたいことがより明確になりました。"),
+      A("That is why I am here today.","だから今日ここにいます。"),
+      A("In the semiconductor field — something essential to the world — I want to grow further and contribute at a world-class workplace.","世界に不可欠な半導体分野で、世界レベルの現場でさらに成長し貢献したいです。"),
+      A("If I receive an offer, I promise to join as smoothly as possible.","内定をいただけたら、できる限りスムーズに入社することをお約束します。"),
+      A("Thank you very much for your time today. I would be grateful for your kind consideration.","本日はお時間をありがとうございました。ご検討のほどよろしくお願いいたします。"),
+    ]},
+  { id:"[カード] 留年", pri:"カード", en:"Why did graduation take extra time?", jp:"なぜ卒業に時間がかかった？（聞かれたら出すカード）",
+    tip:"自分からは言わない。『I do reflect… But I have no regrets.』の対比が山場。反省（事実）→後悔なし（今に繋がる）の順。嘘はつかない。",
+    kw:"be into〜(夢中になる) / reflect(反省する) / no regrets(後悔なし) / what made me who I am(今の自分を作った)",
+    answer:[
+      A("To be honest, when I was a student, I was so into cars and motorcycles that I did not balance my studies well, and it took me extra time to graduate.","正直、学生時代は車・バイクに夢中になりすぎ勉強と両立できず、卒業に余分に時間がかかりました。"),
+      A("I do reflect on how I managed my time. But I have no regrets.","時間の使い方は反省しています。ですが後悔はありません。"),
+      A("That experience is exactly what made me who I am today.","あの経験こそ、今の自分を作りました。"),
+      A("Through cars and motorcycles, I became deeply interested in machines and learned how they work with my own hands, and this is the base of my engineering skills now.","車・バイクを通じて機械に深く興味を持ち、自分の手で仕組みを学び、それが今の技術の土台です。"),
+      A("And from that time, I also learned to set priorities, so now I always think about priorities in my work.","その頃から優先順位も学び、今は仕事で常に優先順位を意識しています。"),
+    ]},
+  { id:"[カード] 学生時代の他社応募", pri:"カード", en:"Where did you apply as a student? Why rejected?", jp:"学生時代どこに応募した？なぜ落ちた？（聞かれたら出すカード）",
+    tip:"自分からは言わない。落ちた事実＋その後の成長で前向きに。",
+    kw:"second interview(二次面接) / not selected(選ばれなかった) / grown since then(その後成長)",
+    answer:[
+      A("I applied to Sony Semiconductor. I reached the second interview, but I was not selected.","ソニーセミコンダクタに応募し、二次面接まで進みましたが、選ばれませんでした。"),
+      A("After that, I gained design and sourcing experience at Asahi, and I think I have grown since then.","その後、旭製作所で設計や調達の経験を積み、成長できたと思います。"),
+    ]},
+];
+// つなぎフレーズ（沈黙より繋ぐ。詰まったら通訳・日本語に頼ってOK）
+const PHRASES = [
+  A("Let me think for a moment, please.","少し考えさせてください。"),
+  A("Could you say that again, please?","もう一度言っていただけますか？"),
+  A("Do you mean ___ ?","＿＿という意味ですか？"),
+  A("Sorry, may I answer this part in Japanese?","すみません、この部分は日本語で答えてもいいですか？"),
+  A("Let me say it again.","言い直させてください。"),
+  A("That's a good question.","良い質問ですね。（間を稼ぐ）"),
+];
+// 数字の即答ドリル（卒業・TOEIC・面接日・入社など）
+const NUMBERS = [
+  A("I graduated from Kumamoto University this March.","今年3月に熊本大学を卒業しました。"),
+  A("My major was materials science.","専攻は材料科学でした。"),
+  A("My TOEIC score is 490.","TOEICは490点です。"),
+  A("Today's interview is June 29th.","本日の面接は6月29日です。"),
+  A("I joined Asahi Glassplant in April, a few months ago.","旭製作所には4月、数ヶ月前に入社しました。"),
+  A("Realistically, I can start around August.","現実的には8月頃から働けます。"),
+  A("I worked at a cram school for six years.","塾講師を6年間続けました。"),
+  A("Three years ago, I had a motorcycle accident.","3年前にバイク事故に遭いました。"),
+  A("New graduates have six months of training in Taiwan.","新卒は台湾で半年の研修があります。"),
+  A("JASM is my first choice, and I am applying only to JASM.","JASMが第一志望で、JASM一本で受けています。"),
+];
+// 直前チェックリスト（当日スマホで確認）
+const CHECKLIST = [
+  "Q1自己紹介・Q2志望動機・Q3なぜ今転職・Q4研究 を何も見ずに言える",
+  "「なぜ他社でなくJASM」で①地元×最先端を必ず言える",
+  "英語力Q9の最初の2〜3文を英語で言える",
+  "バイクのエピソードを短く・長く両方で言える",
+  "CMPを基本版で言える（深掘りされたら強化版）",
+  "締めの挨拶（最後の2文）を丸暗記した",
+  "留年カード・ソニー応募カードを聞かれた時用に準備した",
+  "つなぎフレーズ6つを覚えた",
+  "数字（卒業・TOEIC・6/29面接・8月入社）を英語でスッと言える",
+  "ゆっくり・短く・はっきり（録音で確認した）",
+];
+/* 旧 INTERVIEW（差し替え前の雛形）— 無効化
+const _UNUSED_OLD = [
+  { id:"自己紹介", en:"First, could you introduce yourself?", jp:"まず、自己紹介をお願いします。",
+    tip:"30秒で『大学→研究→現職→だからJASM』の流れ。ゆっくり笑顔で。",
+    answer:[
+      A("Hello. Thank you very much for your time today.","こんにちは。本日はお時間をありがとうございます。"),
+      A("I studied materials science at Kumamoto University.","熊本大学で材料科学を学びました。"),
+      A("Now I work as a plant engineer at Asahi Glassplant.","今は旭製作所でプラントエンジニアとして働いています。"),
+      A("I have always wanted to work in semiconductors, so I applied to JASM.","ずっと半導体の仕事がしたく、JASMに応募しました。"),
+    ]},
+  { id:"志望動機", en:"Why do you want to work at JASM?", jp:"JASMを志望した理由を教えてください。",
+    tip:"『熊本×世界最先端』＋『研究で学んだ条件管理が半導体に活きる』の2点を必ず。",
+    answer:[
+      A("I have been interested in semiconductors for a long time.","私は以前から半導体に関心を持っていました。"),
+      A("JASM lets me work with the world's top technology, here in Kumamoto.","JASMなら地元・熊本で世界最先端の技術に携われます。"),
+      A("In my research, I learned how important small condition control is.","研究で、微細な条件管理の重要性を学びました。"),
+      A("I want to use that experience and grow as an engineer at JASM.","その経験を活かし、JASMでエンジニアとして成長したいです。"),
+    ]},
+  { id:"なぜJASM", en:"Why JASM, and not another semiconductor company?", jp:"なぜ他社ではなく、JASMなのですか？",
+    answer:[
+      A("JASM is part of TSMC, the top foundry in the world.","JASMは世界トップのファウンドリTSMCの一員です。"),
+      A("So I can learn at the highest level.","だから最高レベルで学べます。"),
+      A("As a foundry, JASM makes many kinds of products.","ファウンドリなので多様な製品を作ります。"),
+      A("So I can gain wide experience, not just one product.","一つの製品だけでなく、幅広い経験を積めます。"),
+    ]},
+  { id:"早期転職", en:"You only started your current job in April. Why change jobs so soon?", jp:"今の会社に4月に入ったばかりですよね。なぜこんなに早く転職を？",
+    tip:"⚠最重要。現職を絶対に悪く言わない。『感謝』→『でも半導体への思いが強まった』→『地元でそれが叶うのがJASM』。",
+    answer:[
+      A("I joined Asahi only a few months ago, and the people are very kind. I am thankful.","旭製作所に入って数ヶ月で、周りの方に良くしていただき感謝しています。"),
+      A("But after I started working, my wish to work in semiconductors became even stronger.","ですが働き始めて、半導体で働きたい気持ちがさらに強くなりました。"),
+      A("I first chose Asahi because I wanted to stay in my home area.","元々は地元志向で旭製作所を選びました。"),
+      A("When I learned about JASM's hiring for young engineers, I decided to apply right away.","JASMの第二新卒採用を知り、すぐに応募を決めました。"),
+    ]},
+  { id:"研究概要", en:"Please tell me about your research.", jp:"研究について教えてください。",
+    answer:[
+      A("My research was about the dispersion of graphene oxide.","私の研究は酸化グラフェンの分散性についてです。"),
+      A("I used high-frequency ultrasonic treatment to disperse it.","高周波超音波処理を使って分散させました。"),
+      A("I changed the treatment time and the output power, and checked the results.","処理時間と出力を変えながら、結果を確認しました。"),
+      A("I found that high-frequency treatment keeps good dispersion with fewer defects.","高周波処理は、より少ない欠陥で良い分散を保てると分かりました。"),
+    ]},
+  { id:"グラフェンとは", en:"What is graphene oxide, and why is it important?", jp:"酸化グラフェンとは何で、なぜ重要なのですか？",
+    answer:[
+      A("Graphene oxide is a sheet-like carbon material, only a few atoms thick.","酸化グラフェンは、原子数個分の薄さのシート状の炭素材料です。"),
+      A("It is prepared from graphite oxide.","酸化グラファイトから調製します。"),
+      A("With fewer defects, it has better electrical and thermal properties.","欠陥が少ないほど、電気・熱の特性が良くなります。"),
+      A("So good dispersion with few defects is very important.","だから、少ない欠陥での良い分散がとても重要です。"),
+    ]},
+  { id:"高周波の狙い", en:"Why did you focus on high-frequency ultrasonic treatment?", jp:"なぜ高周波超音波処理に着目したのですか？",
+    answer:[
+      A("Low-frequency treatment makes many defects and uneven size.","低周波処理は欠陥が多く、サイズも不均一になります。"),
+      A("This makes it hard to keep the quality uniform.","品質を均一に保つのが難しくなります。"),
+      A("High-frequency treatment had few past examples to follow.","高周波処理は従うべき前例が少なかったです。"),
+      A("So I set it as my theme, to get fewer defects.","そこで欠陥を減らすため、それをテーマにしました。"),
+    ]},
+  { id:"研究の苦労", en:"What was the most difficult part of your research?", jp:"研究で一番苦労したことは何ですか？",
+    tip:"『AFMの条件を自力で粘り強く探した』は設備EEに直結する強み。前向きに。",
+    answer:[
+      A("The most difficult part was the AFM measurement.","一番苦労したのはAFM測定です。"),
+      A("The image quality changed a lot with the measurement conditions.","測定条件で画像品質が大きく変わりました。"),
+      A("So I searched for the right settings by myself.","そこで自力で最適な設定を探りました。"),
+      A("I kept trying patiently until I got clear images.","綺麗な画像が取れるまで粘り強く続けました。"),
+    ]},
+  { id:"分析装置", en:"What kind of analysis instruments did you use?", jp:"どんな分析装置を使いましたか？",
+    answer:[
+      A("I used several instruments, such as AFM, XPS, UV-VIS, FTIR, and DLS.","AFM、XPS、UV-VIS、FTIR、DLSなど複数を使いました。"),
+      A("I used them to check the oxidation, the size, and the dispersion.","酸化度、サイズ、分散性を確認するために使いました。"),
+      A("I compared the data to find the best conditions.","データを比較し、最適な条件を探しました。"),
+    ]},
+  { id:"現職の業務", en:"What do you do at your current job?", jp:"現職ではどんな仕事をしていますか？",
+    answer:[
+      A("I work as a plant engineer at Asahi Glassplant.","旭製作所でプラントエンジニアをしています。"),
+      A("I make 3D models and drawings with Autodesk Inventor.","Autodesk Inventorで3Dモデルと図面を作ります。"),
+      A("I design custom glass equipment based on customer requests.","顧客の要望に応じてガラス装置を設計します。"),
+      A("I also source and order the components.","部品の調達や発注も行います。"),
+    ]},
+  { id:"長所", en:"What is your strength?", jp:"あなたの長所は何ですか？",
+    answer:[
+      A("My strength is that I act by myself and learn by doing.","私の長所は、自分で手を動かし、やりながら学ぶことです。"),
+      A("For example, I changed the suspension and repainted my motorcycle by myself.","例えば、バイクのサス交換や全塗装を自分でやりました。"),
+      A("When I don't understand something, I try it first and think about the cause.","分からないことは、まず試し、原因を考えます。"),
+      A("This is why I was trusted with 3D design early at my job.","だから職場でも早くから3D設計を任されました。"),
+    ]},
+  { id:"短所", en:"What is your weakness?", jp:"あなたの短所は何ですか？",
+    tip:"短所→今どう改善しているか（優先順位）までセットで答える。",
+    answer:[
+      A("My weakness is that I sometimes think too much until I am fully convinced.","短所は、納得するまで考えすぎてしまうことです。"),
+      A("Sometimes this takes too much time.","そのため時間をかけすぎることがあります。"),
+      A("So now I always set priorities when I work.","なので今は、優先順位を意識して仕事をしています。"),
+    ]},
+  { id:"塾講師", en:"You worked at a cram school for six years. What did you learn?", jp:"塾講師を6年間やって、何を学びましたか？",
+    answer:[
+      A("Each student understands things in a different way.","生徒ごとに理解の仕方が違います。"),
+      A("So I did not just teach. I thought about where they got stuck.","ただ教えるのではなく、どこでつまずくかを考えました。"),
+      A("Then I changed the way I explained for each student.","そして生徒ごとに説明の仕方を変えました。"),
+      A("This taught me to communicate patiently.","これで粘り強く伝える力が身につきました。"),
+    ]},
+  { id:"趣味と仕事", en:"Your hobby is repairing cars and motorcycles. How does it connect to this job?", jp:"趣味の車・バイク整備は、この仕事とどう繋がりますか？",
+    tip:"⭐趣味話で終わらせない。『原因を考えて直す＝設備EEと同じ』に必ず着地。",
+    answer:[
+      A("Three years ago, my motorcycle broke and the engine would not start.","3年前、バイクが壊れ、エンジンがかからなくなりました。"),
+      A("I had little knowledge, but I thought about the causes one by one.","知識は乏しかったですが、原因を一つずつ考えました。"),
+      A("In the end, I fixed it by myself and could ride it again.","最終的に自力で直し、また走れるようになりました。"),
+      A("An equipment engineer also finds the cause when a tool stops, so it is the same way of thinking.","設備エンジニアも装置が止まれば原因を探すので、同じ考え方です。"),
+    ]},
+  { id:"半導体とは", en:"Can you explain what a semiconductor is?", jp:"半導体とは何か説明できますか？",
+    answer:[
+      A("A semiconductor is a material between a conductor and an insulator.","半導体は、導体と絶縁体の中間の物質です。"),
+      A("Its resistivity is between metal and rubber.","抵抗率は金属とゴムの中間です。"),
+      A("It is used in cars, home appliances, and many products.","車や家電など、多くの製品に使われています。"),
+    ]},
+  { id:"CMPとは", en:"Do you know what CMP is?", jp:"CMPが何か知っていますか？",
+    tip:"『化学＋機械』『平坦化』『次の露光に効く』の3点を押さえる。",
+    answer:[
+      A("Yes. CMP means Chemical Mechanical Planarization.","はい。CMPは化学機械研磨という意味です。"),
+      A("It is the process that makes the wafer surface flat.","ウェハ表面を平坦にする工程です。"),
+      A("It uses a slurry and a polishing pad together.","スラリーと研磨パッドを一緒に使います。"),
+      A("If the surface is not flat, the next lithography step cannot work well.","表面が平坦でないと、次の露光がうまくいきません。"),
+    ]},
+  { id:"設備EEで大事", en:"What is the most important thing for an equipment engineer?", jp:"設備エンジニアにとって一番大事なことは何ですか？",
+    answer:[
+      A("I think the most important thing is to face problems patiently and never give up.","一番大事なのは、粘り強く問題に向き合い、諦めないことだと思います。"),
+      A("Every problem always has a cause.","どんな問題にも必ず原因があります。"),
+      A("I want to find the root cause fast and reduce the downtime of the tool.","真の原因を素早く見つけ、装置の停止時間を減らしたいです。"),
+    ]},
+  { id:"英語力", en:"How is your English? Can you work in English?", jp:"英語力はどうですか？英語で働けますか？",
+    tip:"⚠正直＋前向き＋努力中。TOEIC490を隠さず『毎日勉強している』と言い切る。",
+    answer:[
+      A("To be honest, my English is still a work in progress. My TOEIC score is 490.","正直に言うと、英語はまだ発展途上で、TOEICは490点です。"),
+      A("Right now I cannot use English freely at work.","今はまだ、仕事で自由に英語を使えません。"),
+      A("But I am studying every day, and I will keep making an effort.","ですが毎日勉強しており、努力を続けます。"),
+      A("I will also use translation tools and ask people, so it will not affect my work.","翻訳機や周りの方も頼り、仕事に支障が出ないようにします。"),
+    ]},
+  { id:"他社状況", en:"Are you applying to any other companies?", jp:"他社も受けていますか？",
+    answer:[
+      A("No. Right now I am applying only to JASM.","いいえ。今はJASM一本です。"),
+      A("JASM is my first choice.","JASMが第一志望です。"),
+      A("I do not want to cause trouble for my current company with long job-hunting.","長い転職活動で現職に迷惑をかけたくないからです。"),
+    ]},
+  { id:"台湾研修", en:"New employees may have training in Taiwan. Is that OK for you?", jp:"台湾での研修があるかもしれません。大丈夫ですか？",
+    answer:[
+      A("Yes. Training is an important chance to grow, so I want to join it positively.","はい。研修は成長の大事な機会なので、積極的に参加したいです。"),
+      A("For a long stay, I would like to talk it over with my family.","長期滞在なら、家族とよく話し合いたいです。"),
+      A("But I will not just refuse it.","ですが、頭ごなしに断ることはしません。"),
+    ]},
+  { id:"交替勤務", en:"This job has shift work and night shifts. Is that OK?", jp:"交替勤務・夜勤がありますが、大丈夫ですか？",
+    answer:[
+      A("Yes, I am OK with shift work and night shifts.","はい、交替勤務・夜勤は大丈夫です。"),
+      A("I am applying with full knowledge of these points.","これらを承知の上で応募しています。"),
+      A("Through my hobby, I often worked until late at night, so I am confident in my stamina.","趣味で何度も夜中まで作業したので、体力には自信があります。"),
+    ]},
+  { id:"入社時期", en:"When can you start working?", jp:"いつから働けますか？",
+    answer:[
+      A("I can start from July.","7月から働けます。"),
+      A("I need to give notice and finish my handover properly.","退職を申し出て、きちんと引き継ぎを終える必要があります。"),
+      A("I want to leave my current job cleanly, and then join JASM.","現職をきれいに辞めてから、JASMに入社したいです。"),
+    ]},
+  { id:"挑戦したい仕事", en:"What do you want to do after you join JASM?", jp:"入社後はどんな仕事に挑戦したいですか？",
+    tip:"ESの『原因分析・改善』と研究の仮説検証を結びつける。",
+    answer:[
+      A("I want to work on root cause analysis and improvement.","原因分析と改善業務に挑戦したいです。"),
+      A("In my research, small condition changes changed the results a lot.","研究では、わずかな条件差で結果が大きく変わりました。"),
+      A("I checked my hypotheses again and again to find the cause.","仮説検証を繰り返して原因を探しました。"),
+      A("I want to use that to improve quality and yield at JASM.","それを活かし、JASMで品質と歩留まりを高めたいです。"),
+    ]},
+  { id:"ビジョン", en:"What is your vision for the next five to ten years?", jp:"5〜10年後のビジョンを教えてください。",
+    answer:[
+      A("In the semiconductor field, I cannot do the job well right away.","半導体分野では、すぐに一人前にはなれません。"),
+      A("So first, in a few years, I want to become a full member of the team.","だからまず数年で、チームの一人前のメンバーになりたいです。"),
+      A("After that, I want to teach junior members and help run a team.","その後は、後輩指導やチーム運営も担いたいです。"),
+    ]},
+  { id:"留年", en:"It took you extra time to graduate. Could you tell me why?", jp:"卒業に時間がかかっていますね。理由を教えてもらえますか？",
+    tip:"言い訳しない。反省＋『でも今の自分を作った』で前向きに締める。",
+    answer:[
+      A("I was so into cars and motorcycles that it took me extra time to graduate.","車とバイクに夢中になりすぎ、卒業に余分に時間がかかりました。"),
+      A("I do reflect on that.","その点は反省しています。"),
+      A("But I have no regrets, because that experience made me who I am today.","ですが後悔はありません。あの経験が今の自分を作ったからです。"),
+    ]},
+  { id:"締め", en:"Finally, is there anything you would like to say?", jp:"最後に、何か一言あればどうぞ。",
+    answer:[
+      A("Thank you very much for your time today.","本日はお時間をいただきありがとうございました。"),
+      A("Working as a member of society made my goals much clearer.","社会人を経験して、目標がより明確になりました。"),
+      A("If I receive an offer, I promise to join as smoothly as possible.","内定をいただけたら、できる限りスムーズに入社します。"),
+      A("I would be grateful for your kind consideration.","ご検討のほど、よろしくお願いいたします。"),
+    ]},
+];
+*/
+
+// ---- 音声読み上げ (TTS) ----
+let VOICES=[];
+function loadVoices(){ try{ VOICES=window.speechSynthesis.getVoices()||[]; }catch(e){ VOICES=[]; } }
+if("speechSynthesis" in window){ loadVoices(); window.speechSynthesis.onvoiceschanged=loadVoices; }
+function pickVoice(){
+  if(!VOICES.length) loadVoices();
+  const en=VOICES.filter(v=>/^en/i.test(v.lang));
+  return en.find(v=>/Google US English|Samantha|Aaron|Natural|Microsoft (Aria|Jenny|Guy)/i.test(v.name))
+      || en.find(v=>/en[-_]US/i.test(v.lang)) || en[0] || null;
+}
+function speak(text){
+  if(!("speechSynthesis" in window)||!text) return;
+  try{
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang="en-US"; u.rate=0.88; u.pitch=1;
+    const v=pickVoice(); if(v) u.voice=v;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+const TTS_OK = "speechSynthesis" in window;
+function spk(text){ return TTS_OK?`<button class="spk" data-speak="${esc(text)}" aria-label="音声を再生">🔊</button>`:""; }
 const READINGS = {
 "graduate":"グラジュエイト","major":"メイジャー","Faculty of Engineering":"ファカルティ・オブ・エンジニアリング","materials science":"マテリアルズ・サイエンス","plant engineer":"プラント・エンジニア","design":"デザイン","based on customer requests":"ベイスト・オン・カスタマー・リクエスツ","hobby":"ホビー","customize":"カスタマイズ","patience":"ペイシェンス","experience":"エクスペリエンス",
 "semiconductor":"セミコンダクター","semiconductor industry":"セミコンダクター・インダストリー","since my university days":"シンス・マイ・ユニバーシティ・デイズ","apply":"アプライ","it did not work out":"イット・ディドゥント・ワークアウト","hometown":"ホームタウン","the most advanced technology":"ザ・モースト・アドヴァンスト・テクノロジー","world-class workplace":"ワールドクラス・ワークプレイス","contribute":"コントリビュート","grow as an engineer":"グロウ・アズ・アン・エンジニア","top share":"トップ・シェア","at the highest level":"アット・ザ・ハイエスト・レベル","global workplace":"グローバル・ワークプレイス","many kinds of products":"メニー・カインズ・オブ・プロダクツ","gain wide experience":"ゲイン・ワイド・エクスペリエンス","with full agreement":"ウィズ・フル・アグリーメント","thankful":"サンクフル","became even stronger":"ビケイム・イーブン・ストロンガー","stimulation":"スティミュレイション","be useful to people":"ビー・ユースフル・トゥ・ピープル","apply right away":"アプライ・ライト・アウェイ","first choice":"ファースト・チョイス",
@@ -575,19 +1056,23 @@ const MASTER_AT = 2, PASS_PCT = 95, KEY = "jasm_progress_v3";
 const C = { bg:"#0c1018", surface:"#161c28", surface2:"#1e2533", border:"#2a3340", text:"#e8eaed", muted:"#8794a6", accent:"#d98e5a", success:"#5fb487", successBg:"#16241d", error:"#d96b6b", errorBg:"#241616" };
 const $ = (sel, el=document) => el.querySelector(sel);
 const app = $("#app");
+// 🔊ボタンの共通処理（カードのクリックより先に拾う）
+app.addEventListener("click",(e)=>{ const b=e.target.closest("[data-speak]"); if(b){ e.preventDefault(); e.stopPropagation(); speak(b.getAttribute("data-speak")); } }, true);
 const shuffle = (a) => { const r=[...a]; for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];} return r; };
 const esc = (s) => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const buildOpts = (t) => shuffle([t, ...shuffle(VOCAB.filter(v=>v.en!==t.en)).slice(0,3)]);
 const catLabel = (id) => (CATS.find(c=>c.id===id)||{}).label || id;
 
 // ---- progress ----
-let progress = { vocab:{}, sentence:{}, weak:[] };
-function load(){ try{ const r=localStorage.getItem(KEY); if(r){const p=JSON.parse(r); progress={vocab:p.vocab||{},sentence:p.sentence||{},weak:p.weak||[]};} }catch(e){} }
+let progress = { vocab:{}, sentence:{}, weak:[], recite:{}, checklist:{} };
+function load(){ try{ const r=localStorage.getItem(KEY); if(r){const p=JSON.parse(r); progress={vocab:p.vocab||{},sentence:p.sentence||{},weak:p.weak||[],recite:p.recite||{},checklist:p.checklist||{}};} }catch(e){} }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(progress)); }catch(e){} }
 function markVocab(en, correct){ const cur=progress.vocab[en]||{seen:0,correct:0}; progress.vocab[en]={seen:cur.seen+1, correct:cur.correct+(correct?1:0)}; save(); }
 function markSentence(en, status){ progress.sentence[en]=status; save(); }
 function vocabMastered(){ return VOCAB.filter(v=>(progress.vocab[v.en]?.correct||0)>=MASTER_AT).length; }
 function sentenceKnown(){ return SENTENCES.filter(s=>progress.sentence[s.en]==="known").length; }
+function reciteKnown(){ return SENTENCES.filter(s=>progress.recite[s.en]==="known").length; }
+function markRecite(en, ok){ progress.recite[en]= ok?"known":"again"; save(); }
 
 function highlight(sentence, term){
   const words = term.toLowerCase().replace(/[.,]/g,"").split(/\s+/).filter(w=>w.length>2);
@@ -609,13 +1094,18 @@ function render(){
   if(view==="test") return renderTest();
   if(view==="weak") return renderWeak();
   if(view==="sentence") return renderSentence();
+  if(view==="interview") return renderInterview();
+  if(view==="recite") return renderRecite();
+  if(view==="phrases") return renderPhrases();
+  if(view==="numbers") return renderNumbers();
+  if(view==="checklist") return renderChecklist();
 }
 
 // ============ HOME ============
 function renderHome(){
-  const vM=vocabMastered(), sK=sentenceKnown();
-  const vPct=Math.round(vM/VOCAB.length*100), sPct=Math.round(sK/SENTENCES.length*100);
-  const overall=Math.round((vM+sK)/(VOCAB.length+SENTENCES.length)*100);
+  const vM=vocabMastered(), sK=sentenceKnown(), rK=reciteKnown();
+  const vPct=Math.round(vM/VOCAB.length*100), sPct=Math.round(sK/SENTENCES.length*100), rPct=Math.round(rK/SENTENCES.length*100);
+  const overall=Math.round((vM+sK+rK)/(VOCAB.length+SENTENCES.length*2)*100);
   const wc=progress.weak.length;
   app.innerHTML = `
     <div style="padding-top:24px">
@@ -623,6 +1113,18 @@ function renderHome(){
       <h1 style="font-size:25px;font-weight:800;letter-spacing:-.5px;margin:0 0 2px">面接 英語トレーナー</h1>
       <div style="color:${C.muted};font-size:13px;margin-bottom:20px">単語 ${VOCAB.length} ・ 英文 ${SENTENCES.length}</div>
       <div style="display:flex;justify-content:center;margin:4px 0 24px">${wafer(overall)}</div>
+      <div style="font-size:12px;color:${C.accent};font-weight:700;letter-spacing:1px;margin:2px 0 8px">話す（本番練習）</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:18px">
+        ${modeCard("interview","面接シミュレーション","面接官の質問→口に出して答える→模範解答と音声で確認",`質問 ${INTERVIEW.length} 問 ・ 優先度つき`,null)}
+        ${modeCard("recite","暗唱（日本語→英語）","意味を見て、英語を自分で口に出す。本番に一番近い練習",`${rK} / ${SENTENCES.length} 言えた`,rPct)}
+        ${modeCard("phrases","つなぎフレーズ","詰まった時の魔法の言葉。沈黙より繋ぐ",`${PHRASES.length} フレーズ ・ 暗記推奨`,null)}
+        ${modeCard("numbers","数字ドリル","卒業・TOEIC・面接日・入社時期を英語で即答",`${NUMBERS.length} 項目`,null)}
+      </div>
+      <div style="font-size:12px;color:${C.muted};font-weight:700;letter-spacing:1px;margin:2px 0 8px">当日・仕上げ</div>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:18px">
+        ${modeCard("checklist","直前チェックリスト","面接前に最終確認。チェックは保存される",`${CHECKLIST.length} 項目`,null)}
+      </div>
+      <div style="font-size:12px;color:${C.muted};font-weight:700;letter-spacing:1px;margin:2px 0 8px">覚える（基礎）</div>
       <div style="display:flex;flex-direction:column;gap:12px">
         ${modeCard("practice","単語 練習","日本語→英語を4択。間違えたら再出題、2回正解で習得",`${vM} / ${VOCAB.length} 習得`,vPct)}
         ${modeCard("test","単語 テスト",`問題数を選んで採点。${PASS_PCT}%以上で合格`,"ランダム / グループ別",null)}
@@ -636,7 +1138,7 @@ function renderHome(){
   app.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
   $("#resetBtn").onclick=()=>{
     $("#resetBtn").outerHTML=`<span style="font-size:12px;color:${C.muted}">本当に消す？ <button id="yes" class="link" style="color:${C.error};font-weight:700">はい</button> <button id="no" class="link" style="color:${C.text}">戻る</button></span>`;
-    $("#yes").onclick=()=>{ progress={vocab:{},sentence:{},weak:[]}; save(); render(); };
+    $("#yes").onclick=()=>{ progress={vocab:{},sentence:{},weak:[],recite:{},checklist:{}}; save(); render(); };
     $("#no").onclick=()=>render();
   };
 }
@@ -655,7 +1157,7 @@ function wafer(pct){
 }
 function modeCard(go,title,sub,stat,pct,dim){
   return `<button data-go="${go}" class="card" style="opacity:${dim?.55:1}">
-    <div class="icon">${title.includes("練習")?"A":title.includes("テスト")?"T":title.includes("弱点")?"!":"⇅"}</div>
+    <div class="icon">${title.includes("面接")?"▶":title.includes("暗唱")?"★":title.includes("つなぎ")?"💬":title.includes("数字")?"#":title.includes("チェック")?"✓":title.includes("練習")?"A":title.includes("テスト")?"T":title.includes("弱点")?"!":"⇅"}</div>
     <div style="flex:1;min-width:0">
       <div style="font-size:17px;font-weight:700">${title}</div>
       <div style="font-size:12px;color:${C.muted};margin-bottom:${pct!=null?7:4}px">${sub}</div>
@@ -679,7 +1181,7 @@ function quizCardHTML(item, opts, picked){
   let ex="";
   if(picked && EXAMPLES[item.en]){
     ex=`<div style="margin-top:14px;background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:14px 16px">
-      <div style="font-size:10px;color:${C.accent};letter-spacing:1.5px;margin-bottom:8px">この単語を使った文</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:10px;color:${C.accent};letter-spacing:1.5px">この単語を使った文</div>${spk(EXAMPLES[item.en].en)}</div>
       <div class="mono" style="font-size:14px;line-height:1.6;color:${C.text};margin-bottom:8px">${highlight(EXAMPLES[item.en].en, item.en)}</div>
       <div style="font-size:13px;line-height:1.6;color:${C.muted}">${esc(EXAMPLES[item.en].jp)}</div></div>`;
   }
@@ -832,7 +1334,7 @@ function renderSentence(){
       }).join("")}
     </div>
     ${!s.checked?`<div id="bank" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;min-height:40px">${s.bank.map(c=>`<button class="bankc mono" data-k="${c.key}">${esc(c.text)}</button>`).join("")}</div>`:""}
-    ${s.checked?`<div style="background:${s.correct?C.successBg:C.errorBg};border:1px solid ${s.correct?C.success:C.error};border-radius:14px;padding:14px;margin-bottom:16px"><div style="font-size:12px;font-weight:800;color:${s.correct?C.success:C.error};margin-bottom:8px">${s.correct?"正解！":"おしい！正しい順はこちら"}</div><div class="mono" style="font-size:15px;line-height:1.6;color:${C.text}">${esc(cur.en)}</div></div>`:""}
+    ${s.checked?`<div style="background:${s.correct?C.successBg:C.errorBg};border:1px solid ${s.correct?C.success:C.error};border-radius:14px;padding:14px;margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:12px;font-weight:800;color:${s.correct?C.success:C.error}">${s.correct?"正解！":"おしい！正しい順はこちら"}</div>${spk(cur.en)}</div><div class="mono" style="font-size:15px;line-height:1.6;color:${C.text}">${esc(cur.en)}</div></div>`:""}
     ${!s.checked?bigBtn("checkBtn","答え合わせ"):`<div style="display:flex;gap:10px">${!s.correct?`<button id="retryBtn" class="btn2">↺ もう一度</button>`:""}<button id="nextBtn" class="btn1" style="flex:2">${s.idx+1>=s.cards.length?"終了する":"次へ"} ›</button></div>`}`;
   bindBack();
   if(!s.checked){
@@ -848,6 +1350,195 @@ function setupCard(s){
   const card=s.cards[s.idx]; const tagged=card.chunks.map((text,i)=>({text,key:String(i)}));
   let sh=shuffle(tagged); if(sh.length>1 && sh.map(x=>x.key).join()===tagged.map(x=>x.key).join()) sh=shuffle(tagged);
   s.bank=sh; s.slots=[]; s.checked=false; s.correct=false; return s;
+}
+
+// ============ 面接シミュレーション ============
+function priColor(p){ return p==="絶対暗記"?C.error:p==="本命"?C.accent:p==="カード"?"#7b86d6":C.muted; }
+function priTag(p){ const c=priColor(p); return `<span style="display:inline-block;font-size:10px;font-weight:800;color:${c};border:1px solid ${c};border-radius:6px;padding:1px 7px">${esc(p)}</span>`; }
+function renderInterview(){
+  const s=state;
+  // 一覧（質問を選ぶ）
+  if(!s.started){
+    const pf=s.pri||"all";
+    const idxs=INTERVIEW.map((q,i)=>i).filter(i=>pf==="all"||INTERVIEW[i].pri===pf);
+    const pchip=(id,label)=>`<button class="chip ${pf===id?'on':''}" data-pri="${esc(id)}">${label}</button>`;
+    app.innerHTML = topBar("面接シミュレーション") + `
+      <div style="background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:${C.muted};line-height:1.7">
+        ${TTS_OK?"🔊で発音を聞き、":""}<span style="color:${C.accent}">まず声に出して答えて</span>から模範解答で確認。面接日 <span style="color:${C.text};font-weight:700">6/29</span> まで、<span style="color:${C.error};font-weight:700">絶対暗記</span>→<span style="color:${C.accent};font-weight:700">本命</span>の順で。</div>
+      ${sectionLabel("優先度でしぼる")}
+      <div class="chips">${pchip("all",`全部 (${INTERVIEW.length})`)}${pchip("絶対暗記","絶対暗記")}${pchip("本命","本命")}${pchip("カード","カード")}</div>
+      ${bigBtn("allBtn",`▶ 通しでやる（${idxs.length}問）`)}
+      <div style="height:10px"></div>
+      <button id="honbanBtn" class="btnp">🎤 本番モード（絶対暗記＋本命をランダム）</button>
+      <div style="height:14px"></div>
+      ${sectionLabel("質問を選ぶ")}
+      <div style="display:flex;flex-direction:column;gap:10px">
+        ${idxs.map(i=>{const q=INTERVIEW[i];return `<button class="card" data-i="${i}" style="padding:14px 16px">
+          <div class="icon" style="background:${C.surface2};color:${priColor(q.pri)};font-size:14px">${i+1}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:15px;font-weight:700;line-height:1.4">${esc(q.jp)}</div>
+            <div class="mono" style="font-size:11px;color:${C.muted};margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(q.en)}</div>
+            ${q.pri!=="通常"?`<div style="margin-top:6px">${priTag(q.pri)}</div>`:""}
+          </div><div style="color:${C.muted}">›</div></button>`;}).join("")}
+      </div>`;
+    bindBack();
+    app.querySelectorAll("[data-pri]").forEach(b=>b.onclick=()=>{ s.pri=b.dataset.pri; go("interview",s); });
+    $("#allBtn").onclick=()=>{ if(idxs.length) go("interview",{started:true,seq:idxs,pos:0,reveal:false}); };
+    $("#honbanBtn").onclick=()=>{ const hi=INTERVIEW.map((q,i)=>i).filter(i=>INTERVIEW[i].pri==="絶対暗記"||INTERVIEW[i].pri==="本命"); go("interview",{started:true,seq:shuffle(hi),pos:0,reveal:false,honban:true}); };
+    app.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>go("interview",{started:true,seq:[+b.dataset.i],pos:0,reveal:false}));
+    return;
+  }
+  // 1問表示
+  const q=INTERVIEW[s.seq[s.pos]];
+  const allEn=q.answer.map(a=>a.en).join(" ");
+  app.innerHTML = topBar("面接シミュレーション") +
+    statRow(`${s.pos+1} / ${s.seq.length}`,`${q.pri!=="通常"?priTag(q.pri)+" ":""}<span style="color:${C.accent}">Q. ${esc(q.id)}</span>`) + `
+    <div style="background:${C.surface};border:1px solid ${C.border};border-radius:18px;padding:22px 20px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px">
+        <div style="font-size:10px;color:${C.accent};letter-spacing:1.5px;padding-top:4px">面接官</div>${spk(q.en)}</div>
+      <div class="mono" style="font-size:19px;font-weight:700;line-height:1.5;margin-bottom:10px">${esc(q.en)}</div>
+      <div style="font-size:13px;color:${C.muted};line-height:1.5">${esc(q.jp)}</div>
+    </div>
+    ${!s.reveal?`
+      <div style="background:${C.surface2};border:1px dashed ${C.border};border-radius:14px;padding:18px;text-align:center;color:${C.muted};font-size:13px;line-height:1.7;margin-bottom:16px">
+        🗣️ まず声に出して答えてみよう。<br>言えたら下のボタンで模範解答を確認。</div>
+      ${bigBtn("revealBtn","模範解答を見る")}
+    `:`
+      ${q.tip?`<div style="background:${C.surface2};border-left:3px solid ${C.accent};border-radius:8px;padding:11px 13px;margin-bottom:14px;font-size:12.5px;line-height:1.6;color:${C.text}"><span style="color:${C.accent};font-weight:700">コツ </span>${esc(q.tip)}</div>`:""}
+      ${q.short?`<div style="background:${C.surface};border:1px dashed ${C.accent};border-radius:14px;padding:14px 16px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:10px;color:${C.accent};letter-spacing:1px;font-weight:700">⏱ 短縮版（詰まったら/時間がない時はこれだけ）</div>${spk(q.short.en)}</div>
+        <div class="mono" style="font-size:14px;line-height:1.6;color:${C.text};margin-bottom:6px">${esc(q.short.en)}</div>
+        <div style="font-size:12px;color:${C.muted};line-height:1.5">${esc(q.short.jp)}</div></div>`:""}
+      <div style="background:${C.successBg};border:1px solid ${C.success};border-radius:14px;padding:16px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-size:11px;color:${C.success};letter-spacing:1.5px;font-weight:700">模範解答</div>
+          ${TTS_OK?`<button class="spk" data-speak="${esc(allEn)}">🔊 全部再生</button>`:""}</div>
+        ${q.answer.map(a=>`<div style="padding:10px 0;border-bottom:1px solid ${C.border}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+            <div class="mono" style="font-size:15px;line-height:1.6;color:${C.text}">${esc(a.en)}</div>${spk(a.en)}</div>
+          <div style="font-size:12px;color:${C.muted};margin-top:5px;line-height:1.5">${esc(a.jp)}</div></div>`).join("")}
+      </div>
+      ${q.kw?`<div style="background:${C.surface};border:1px solid ${C.border};border-radius:12px;padding:11px 13px;margin-bottom:14px"><div style="font-size:10px;color:${C.accent};letter-spacing:1.5px;margin-bottom:5px">キー単語</div><div style="font-size:13px;line-height:1.7;color:${C.text}">${esc(q.kw)}</div></div>`:""}
+      <div style="display:flex;gap:10px">
+        <button id="retryBtn" class="btn2">↺ もう一度</button>
+        <button id="nextBtn" class="btn1" style="flex:2">${s.pos+1>=s.seq.length?"終了する":"次の質問"} ›</button>
+      </div>`}`;
+  bindBack();
+  if(!s.reveal){ $("#revealBtn").onclick=()=>{ s.reveal=true; go("interview",s); }; }
+  else {
+    $("#retryBtn").onclick=()=>{ s.reveal=false; go("interview",s); };
+    $("#nextBtn").onclick=()=>{ const ni=s.pos+1; if(ni>=s.seq.length){ go("interview",{started:false}); return; } go("interview",{started:true,seq:s.seq,pos:ni,reveal:false}); };
+  }
+}
+
+// ============ 暗唱（日本語→英語） ============
+function renderRecite(){
+  const s=state;
+  if(!s.started){
+    const qf=s.qf||"all";
+    app.innerHTML=topBar("暗唱（日本語→英語）")+
+      (s.result?resultCard(Math.round(s.result.ok/s.result.done*100),[`言えた ${s.result.ok} / ${s.result.done}`]):"")+`
+      <div style="background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:${C.muted};line-height:1.7">日本語を見て、<span style="color:${C.accent}">英語を自分で声に出して言う</span>。言えたら答えを開いて確認し、自己採点します。本番に一番近い練習です。</div>
+      ${sectionLabel("範囲（質問ごと）")}
+      <div class="chips">${chipQ("all",`全部 (${SENTENCES.length})`,qf==="all")}${qList().map(q=>{const n=SENTENCES.filter(x=>x.q===q).length;const k=SENTENCES.filter(x=>x.q===q&&progress.recite[x.en]==="known").length;return chipQ(q,`${q} ${k}/${n}`,qf===q);}).join("")}</div>
+      ${bigBtn("startBtn",`スタート（${poolByQ(qf).length}問）`)}`;
+    bindBack();
+    app.querySelectorAll("[data-qf]").forEach(b=>b.onclick=()=>{ s.qf=b.dataset.qf; go("recite",s); });
+    $("#startBtn").onclick=()=>{ const q=shuffle(poolByQ(qf)); go("recite",{started:true,qf,queue:q,idx:0,reveal:false,done:0,ok:0}); };
+    return;
+  }
+  const cur=s.queue[s.idx];
+  app.innerHTML=topBar("暗唱（日本語→英語）")+
+    statRow(`${s.idx+1} / ${s.queue.length}`,`言えた <span style="color:${C.success}">${s.ok}</span>`)+`
+    <div style="background:${C.surface};border:1px solid ${C.border};border-radius:18px;padding:26px 20px;margin-bottom:16px">
+      <div style="font-size:11px;color:${C.muted};letter-spacing:1.5px;margin-bottom:12px">これを英語で言うと？</div>
+      <div style="font-size:21px;font-weight:700;line-height:1.5">${esc(cur.jp)}</div>
+      <div style="font-size:11px;color:${C.accent};margin-top:10px">Q. ${esc(cur.q)}</div>
+    </div>
+    ${!s.reveal?`
+      <div style="background:${C.surface2};border:1px dashed ${C.border};border-radius:14px;padding:16px;text-align:center;color:${C.muted};font-size:13px;line-height:1.6;margin-bottom:16px">🗣️ 声に出して言ってみよう</div>
+      ${bigBtn("revealBtn","答えを見る")}
+    `:`
+      <div style="background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:16px;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px">
+          <div class="mono" style="font-size:16px;line-height:1.6;color:${C.text}">${esc(cur.en)}</div>${spk(cur.en)}</div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button id="ngBtn" class="btn2">言えなかった</button>
+        <button id="okBtn" class="btn1">✓ 言えた</button>
+      </div>`}`;
+  bindBack();
+  if(!s.reveal){ $("#revealBtn").onclick=()=>{ s.reveal=true; go("recite",s); }; }
+  else {
+    const advance=(ok)=>{ markRecite(cur.en,ok); s.done++; if(ok)s.ok++; const ni=s.idx+1;
+      if(ni>=s.queue.length){ go("recite",{started:false,qf:s.qf,result:{ok:s.ok,done:s.done}}); return; }
+      go("recite",{started:true,qf:s.qf,queue:s.queue,idx:ni,reveal:false,done:s.done,ok:s.ok}); };
+    $("#okBtn").onclick=()=>advance(true);
+    $("#ngBtn").onclick=()=>advance(false);
+  }
+}
+
+// ============ つなぎフレーズ ============
+function renderPhrases(){
+  app.innerHTML = topBar("つなぎフレーズ") + `
+    <div style="background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:12px 14px;margin-bottom:18px;font-size:12.5px;color:${C.muted};line-height:1.8">
+      面接で詰まったら、<span style="color:${C.accent};font-weight:700">沈黙より繋ぐ</span>。この6つを口グセにしておけば、考える時間を作れます。<br>分からない単語は考え込まず、<span style="color:${C.text}">通訳・日本語に頼ってOK</span>（合格者の助言）。</div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${PHRASES.map(p=>`<div style="background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:14px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+          <div class="mono" style="font-size:16px;font-weight:700;line-height:1.5;color:${C.text}">${esc(p.en)}</div>${spk(p.en)}</div>
+        <div style="font-size:13px;color:${C.muted};margin-top:6px;line-height:1.5">${esc(p.jp)}</div></div>`).join("")}
+    </div>
+    <div style="background:${C.surface2};border-left:3px solid ${C.accent};border-radius:8px;padding:12px 14px;margin-top:16px;font-size:12.5px;line-height:1.8;color:${C.text}">
+      <span style="color:${C.accent};font-weight:700">心構え </span>第二工場の拡大期で、会社は人を必要としています。「拾ってもらう」ではなく<span style="color:${C.text};font-weight:700">「お互い必要としている」</span>フラットな姿勢で。ゆっくり・短く・はっきり。</div>`;
+  bindBack();
+}
+
+// ============ 数字ドリル ============
+function renderNumbers(){
+  const s=state; const i=s.idx||0; const cur=NUMBERS[i];
+  app.innerHTML=topBar("数字ドリル")+
+    statRow(`${i+1} / ${NUMBERS.length}`,`<span style="color:${C.accent}">英語で即答</span>`)+`
+    <div style="background:${C.surface};border:1px solid ${C.border};border-radius:18px;padding:28px 20px;text-align:center;margin-bottom:16px">
+      <div style="font-size:11px;color:${C.muted};letter-spacing:1.5px;margin-bottom:12px">これを英語で？</div>
+      <div style="font-size:20px;font-weight:700;line-height:1.5">${esc(cur.jp)}</div>
+    </div>
+    ${!s.reveal?`
+      <div style="background:${C.surface2};border:1px dashed ${C.border};border-radius:14px;padding:16px;text-align:center;color:${C.muted};font-size:13px;margin-bottom:16px">🗣️ 声に出して言ってみよう</div>
+      ${bigBtn("revealBtn","答えを見る")}
+    `:`
+      <div style="background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:16px;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+          <div class="mono" style="font-size:17px;font-weight:700;line-height:1.6;color:${C.text}">${esc(cur.en)}</div>${spk(cur.en)}</div></div>
+      <div style="display:flex;gap:10px">
+        <button id="prevBtn" class="btn2">‹ 前へ</button>
+        <button id="nextBtn" class="btn1" style="flex:2">${i+1>=NUMBERS.length?"最初に戻る":"次へ"} ›</button>
+      </div>`}`;
+  bindBack();
+  if(!s.reveal){ $("#revealBtn").onclick=()=>go("numbers",{idx:i,reveal:true}); }
+  else {
+    $("#prevBtn").onclick=()=>go("numbers",{idx:(i-1+NUMBERS.length)%NUMBERS.length,reveal:false});
+    $("#nextBtn").onclick=()=>go("numbers",{idx:(i+1)%NUMBERS.length,reveal:false});
+  }
+}
+
+// ============ 直前チェックリスト ============
+function renderChecklist(){
+  const done=CHECKLIST.filter((_,i)=>progress.checklist[i]).length;
+  app.innerHTML=topBar("直前チェックリスト")+`
+    <div style="background:${done===CHECKLIST.length?C.successBg:C.surface};border:1px solid ${done===CHECKLIST.length?C.success:C.border};border-radius:14px;padding:14px;margin-bottom:16px;text-align:center">
+      <div class="mono" style="font-size:30px;font-weight:800;color:${done===CHECKLIST.length?C.success:C.accent}">${done} / ${CHECKLIST.length}</div>
+      <div style="font-size:12px;color:${C.muted};margin-top:2px">${done===CHECKLIST.length?"準備OK！自信を持って 👍":"タップでチェック（保存されます）"}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${CHECKLIST.map((t,i)=>{const on=!!progress.checklist[i];return `<button class="card" data-ci="${i}" style="padding:13px 14px;align-items:flex-start;gap:11px">
+        <div style="width:26px;height:26px;border-radius:7px;flex-shrink:0;border:2px solid ${on?C.success:C.border};background:${on?C.success:'transparent'};color:${C.bg};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px">${on?"✓":""}</div>
+        <div style="font-size:14px;line-height:1.5;color:${on?C.muted:C.text};text-align:left;text-decoration:${on?'line-through':'none'}">${esc(t)}</div></button>`;}).join("")}
+    </div>
+    <div style="margin-top:14px;text-align:center"><button id="clrBtn" class="link">チェックを全部外す</button></div>`;
+  bindBack();
+  app.querySelectorAll("[data-ci]").forEach(b=>b.onclick=()=>{ const i=+b.dataset.ci; progress.checklist[i]=!progress.checklist[i]; save(); render(); });
+  $("#clrBtn").onclick=()=>{ progress.checklist={}; save(); render(); };
 }
 
 // ============ UI helpers ============
