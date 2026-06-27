@@ -33,6 +33,9 @@ html,body{margin:0;background:#0c1018;color:#e8eaed;font-family:-apple-system,Bl
 .spk:active{background:#d98e5a;color:#0c1018}
 .btnp{background:#161c28;border:1.5px solid #d98e5a;border-radius:13px;padding:14px;color:#d98e5a;font-size:15px;font-weight:800;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
 .qrow{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #2a3340}
+.ta{width:100%;box-sizing:border-box;background:#0c1018;border:1.5px solid #2a3340;border-radius:10px;color:#e8eaed;font-size:14px;line-height:1.6;padding:10px 12px;font-family:inherit;min-height:96px;resize:vertical;margin-top:10px}
+.ta:focus{outline:none;border-color:#d98e5a}
+.minib{background:#161c28;border:1px solid #2a3340;border-radius:8px;color:#8794a6;font-size:12px;font-weight:700;padding:7px 12px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -772,6 +775,44 @@ const QBANK = [
     Q("（NG例）残業・休日・給与だけを真っ先に聞く。","条件は最後に軽く。志望度が伝わる質問を優先。"),
   ]},
 ];
+// 質問→準備済み模範解答（INTERVIEWのid）。ここにある質問は「✓準備済」表示＆模範解答を見られる
+const QREF = {
+  "まず簡単に自己紹介をお願いします。":"自己紹介",
+  "経歴を時系列で説明してください。":"自己紹介",
+  "簡単な自己紹介を英語でお願いできますか。":"自己紹介",
+  "なぜ半導体業界を志望するのですか。":"志望動機",
+  "数ある半導体企業の中で、なぜJASM（TSMC）なのですか。":"志望動機",
+  "なぜ最初から半導体を受けなかったのですか。":"志望動機",
+  "なぜ他社（ソニー・ラピダス等）ではないのですか。":"なぜ他社でなくJASM",
+  "当社について知っていることを教えてください。":"半導体の知識",
+  "半導体とは何か、素人にわかるように説明してください。":"半導体の知識",
+  "ファウンドリのビジネスモデルを説明してください。":"半導体の知識",
+  "なぜ今のタイミングで転職するのですか。":"なぜ今転職",
+  "4月に入ったばかりなのに、なぜ数ヶ月で辞めるのですか。":"なぜ今転職",
+  "そんなに早く辞めるなら、うちもすぐ辞めるのでは？":"なぜ今転職",
+  "5年後・10年後、どうなっていたいですか。":"5年後・10年後",
+  "研究を3分で、次に1分で説明してください。":"研究概要",
+  "なぜ高周波に着目したのか、仮説は何でしたか。":"なぜ高周波",
+  "うまくいかなかった実験は？どう原因を切り分けましたか。":"研究で苦労した点",
+  "CMPとは何か、なぜ必要かを説明してください。":"CMPとは",
+  "CMPが不十分だと、後工程に何が起きますか。":"CMPとは",
+  "設備エンジニアの仕事を、あなたの理解で説明してください。":"EEで大事なこと(バイク)",
+  "設備エンジニアに一番大事な資質は何だと思いますか。":"EEで大事なこと(バイク)",
+  "困難を粘り強く乗り越えた経験を、状況から結果まで。":"EEで大事なこと(バイク)",
+  "車・バイクに注いだ情熱を、仕事にどう向けますか。":"EEで大事なこと(バイク)",
+  "英語力を正直に教えてください（TOEICも）。":"英語力",
+  "英語が不十分な中で、台湾人の上司・同僚とどう協働しますか。":"英語力",
+  "TSMCは激務とも言われますが、ついていけますか。":"交替勤務・夜勤",
+  "交替勤務・夜勤・休日対応は、本当に大丈夫ですか。":"交替勤務・夜勤",
+  "地元志向と言いますが、台湾への長期赴任を命じられたら？":"地元志向と台湾出張",
+  "入社可能時期はいつですか。":"入社時期・引き継ぎ",
+  "他社の選考状況を教えてください。":"他社の選考状況",
+  "長所と、それを裏付けるエピソードを。":"長所・短所",
+  "短所と、その対処を教えてください。":"長所・短所",
+  "卒業が遅れた（留年）理由は何ですか。":"[カード] 留年",
+  "最後に一言、自己アピールをどうぞ。":"締めの挨拶",
+};
+const QUI = { cat:null, edit:null, show:{} };
 /* 旧 INTERVIEW（差し替え前の雛形）— 無効化
 const _UNUSED_OLD = [
   { id:"自己紹介", en:"First, could you introduce yourself?", jp:"まず、自己紹介をお願いします。",
@@ -1280,8 +1321,8 @@ const buildOpts = (t) => shuffle([t, ...shuffle(VOCAB.filter(v=>v.en!==t.en)).sl
 const catLabel = (id) => (CATS.find(c=>c.id===id)||{}).label || id;
 
 // ---- progress ----
-let progress = { vocab:{}, sentence:{}, weak:[], recite:{}, checklist:{} };
-function load(){ try{ const r=localStorage.getItem(KEY); if(r){const p=JSON.parse(r); progress={vocab:p.vocab||{},sentence:p.sentence||{},weak:p.weak||[],recite:p.recite||{},checklist:p.checklist||{}};} }catch(e){} }
+let progress = { vocab:{}, sentence:{}, weak:[], recite:{}, checklist:{}, answers:{} };
+function load(){ try{ const r=localStorage.getItem(KEY); if(r){const p=JSON.parse(r); progress={vocab:p.vocab||{},sentence:p.sentence||{},weak:p.weak||[],recite:p.recite||{},checklist:p.checklist||{},answers:p.answers||{}};} }catch(e){} }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(progress)); }catch(e){} }
 function markVocab(en, correct){ const cur=progress.vocab[en]||{seen:0,correct:0}; progress.vocab[en]={seen:cur.seen+1, correct:cur.correct+(correct?1:0)}; save(); }
 function markSentence(en, status){ progress.sentence[en]=status; save(); }
@@ -1361,7 +1402,7 @@ function renderHome(){
   app.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
   $("#resetBtn").onclick=()=>{
     $("#resetBtn").outerHTML=`<span style="font-size:12px;color:${C.muted}">本当に消す？ <button id="yes" class="link" style="color:${C.error};font-weight:700">はい</button> <button id="no" class="link" style="color:${C.text}">戻る</button></span>`;
-    $("#yes").onclick=()=>{ progress={vocab:{},sentence:{},weak:[],recite:{},checklist:{}}; save(); render(); };
+    $("#yes").onclick=()=>{ progress={vocab:{},sentence:{},weak:[],recite:{},checklist:{},answers:progress.answers||{}}; save(); render(); };
     $("#no").onclick=()=>render();
   };
 }
@@ -1812,25 +1853,61 @@ function listenRenderPlayer(){
 
 // ============ 想定質問集 ============
 function renderQuestions(){
-  const s=state; const cat=s.qcat||QBANK[0].id;
+  const cat=QUI.cat||QBANK[0].id;
   const c=QBANK.find(x=>x.id===cat)||QBANK[0];
   const total=QBANK.reduce((n,x)=>n+x.items.length,0);
+  const ans=progress.answers||{};
+  const answered=Object.keys(ans).filter(k=>ans[k]&&ans[k].trim()).length;
   app.innerHTML=topBar("想定質問集")+`
-    <div style="background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:12px 14px;margin-bottom:16px;font-size:12.5px;color:${C.muted};line-height:1.8">
-      JASM特化の想定質問 <span style="color:${C.text};font-weight:700">${total}問</span>。<span style="color:${C.accent}">一度、自分の答えを声に出して考えておく</span>だけで本番が変わります。<br>💡 = 狙い・答えの方向。レジュメ／ESの深掘りも収録。</div>
-    <div class="chips">${QBANK.map(x=>`<button class="chip ${x.id===cat?'on':''}" data-qc="${x.id}">${esc(x.label)} (${x.items.length})</button>`).join("")}</div>
+    <div style="background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:12.5px;color:${C.muted};line-height:1.8">
+      質問ごとに<span style="color:${C.accent};font-weight:700">自分の回答を書いて保存</span>できます。<span style="color:${C.success}">✓準備済</span>の質問は「模範解答」も見られます（最初は非表示）。<br>回答済み <span class="mono" style="color:${C.accent};font-weight:700">${answered}</span> / ${total} 問</div>
+    <div class="chips">${QBANK.map(x=>{const a=x.items.filter(it=>ans[it.q]&&ans[it.q].trim()).length;return `<button class="chip ${x.id===cat?'on':''}" data-qc="${x.id}">${esc(x.label)} ${a}/${x.items.length}</button>`;}).join("")}</div>
     <div style="font-size:13px;color:${C.accent};font-weight:700;margin:16px 0 10px">${esc(c.label)}（${c.items.length}問）</div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      ${c.items.map((it,i)=>`<div style="background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:14px 16px">
-        <div style="display:flex;gap:10px;align-items:flex-start">
-          <div class="mono" style="color:${C.accent};font-weight:800;flex-shrink:0;font-size:13px;padding-top:1px">Q${i+1}</div>
-          <div style="font-size:15px;font-weight:600;line-height:1.55">${esc(it.q)}</div></div>
-        ${it.h?`<div style="font-size:12.5px;color:${C.muted};line-height:1.6;margin-top:9px;border-top:1px solid ${C.border};padding-top:9px">💡 ${esc(it.h)}</div>`:""}
-      </div>`).join("")}
-    </div>
-    <div style="text-align:center;color:${C.muted};font-size:12px;margin-top:18px">関連する英語回答は「面接シミュレーション」で確認できます</div>`;
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${c.items.map((it,i)=>renderQCard(it,i)).join("")}
+    </div>`;
   bindBack();
-  app.querySelectorAll("[data-qc]").forEach(b=>b.onclick=()=>{ s.qcat=b.dataset.qc; go("questions",s); window.scrollTo(0,0); });
+  app.querySelectorAll("[data-qc]").forEach(b=>b.onclick=()=>{ QUI.cat=b.dataset.qc; QUI.edit=null; renderQuestions(); window.scrollTo(0,0); });
+  bindQCards();
+}
+function renderQCard(it,i){
+  const ans=(progress.answers||{})[it.q]||"";
+  const editing=QUI.edit===it.q;
+  const ref=QREF[it.q]?INTERVIEW.find(x=>x.id===QREF[it.q]):null;
+  const shown=QUI.show[it.q];
+  return `<div style="background:${C.surface};border:1px solid ${C.border};border-radius:14px;padding:14px 16px">
+    <div style="display:flex;gap:10px;align-items:flex-start">
+      <div class="mono" style="color:${C.accent};font-weight:800;flex-shrink:0;font-size:13px;padding-top:1px">Q${i+1}</div>
+      <div style="font-size:15px;font-weight:600;line-height:1.55">${esc(it.q)}${ref?` <span style="font-size:10px;color:${C.success};border:1px solid ${C.success};border-radius:5px;padding:0 5px;white-space:nowrap">✓準備済</span>`:""}</div></div>
+    ${it.h?`<div style="font-size:12.5px;color:${C.muted};line-height:1.6;margin-top:9px">💡 ${esc(it.h)}</div>`:""}
+    ${editing?`
+      <textarea class="ta" id="ta_${i}" placeholder="自分の答えを書く…">${esc(ans)}</textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="minib" data-cancel="1">キャンセル</button>
+        <button class="btn1" style="flex:1;padding:10px" data-save="${esc(it.q)}" data-idx="${i}">保存する</button>
+      </div>`:`
+      ${ans?`<div style="background:${C.bg};border:1px solid ${C.border};border-left:3px solid ${C.accent};border-radius:8px;padding:10px 12px;margin-top:10px">
+        <div style="font-size:10px;color:${C.accent};letter-spacing:1px;margin-bottom:5px">あなたの回答</div>
+        <div style="font-size:13.5px;line-height:1.65;white-space:pre-wrap">${esc(ans)}</div></div>`:""}
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="minib" data-edit="${esc(it.q)}">${ans?"✏️ 編集":"✏️ 回答を書く"}</button>
+        ${ref?`<button class="minib" data-show="${esc(it.q)}" style="color:${C.success};border-color:${C.success}">${shown?"模範解答を隠す":"模範解答を見る"}</button>`:""}
+      </div>
+      ${ref&&shown?`<div style="background:${C.successBg};border:1px solid ${C.success};border-radius:10px;padding:12px;margin-top:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:10px;color:${C.success};letter-spacing:1px">模範解答（準備済みの言い回し）</div>${spk(ref.answer.map(a=>a.en).join(" "))}</div>
+        ${ref.answer.map(a=>`<div style="padding:6px 0;border-bottom:1px solid ${C.border}">
+          <div style="display:flex;justify-content:space-between;gap:6px;align-items:flex-start"><div class="mono" style="font-size:13px;line-height:1.55;color:${C.text}">${esc(a.en)}</div>${spk(a.en)}</div>
+          <div style="font-size:12px;color:${C.muted};margin-top:3px;line-height:1.5">${esc(a.jp)}</div></div>`).join("")}
+        ${ref.short?`<div style="font-size:11px;color:${C.muted};margin-top:8px">⏱ 短縮版もあり → 面接シミュレーション参照</div>`:""}
+      </div>`:""}
+    `}
+  </div>`;
+}
+function bindQCards(){
+  app.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>{ QUI.edit=b.getAttribute("data-edit"); renderQuestions(); });
+  app.querySelectorAll("[data-cancel]").forEach(b=>b.onclick=()=>{ QUI.edit=null; renderQuestions(); });
+  app.querySelectorAll("[data-show]").forEach(b=>b.onclick=()=>{ const q=b.getAttribute("data-show"); QUI.show[q]=!QUI.show[q]; renderQuestions(); });
+  app.querySelectorAll("[data-save]").forEach(b=>b.onclick=()=>{ const q=b.getAttribute("data-save"); const ta=document.querySelector("#ta_"+b.getAttribute("data-idx")); if(!progress.answers)progress.answers={}; progress.answers[q]=ta?ta.value:""; save(); QUI.edit=null; renderQuestions(); });
 }
 
 // ============ UI helpers ============
